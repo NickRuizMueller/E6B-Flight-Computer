@@ -2,867 +2,566 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Vollst‰ndiger E6B Flight Computer mit Gyroskop-Funktionalit‰t</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E6B Flight Computer</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: #f0f4f8;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
             margin: 0;
             padding: 20px;
+            min-height: 100vh;
         }
+        
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
             padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
-        h1, h2 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
+        
         h1 {
             text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
-        .computer-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
-            justify-content: center;
+        
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
         }
-        .side {
-            flex: 1;
-            min-width: 300px;
-            max-width: 600px;
+        
+        .calc-section {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
         }
-        .calculator-side, .wind-side {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
+        
+        .calc-section:hover {
+            transform: translateY(-5px);
+        }
+        
+        .calc-section h3 {
+            color: #ffd700;
             margin-bottom: 20px;
+            font-size: 1.4em;
+            text-align: center;
         }
+        
         .input-group {
             margin-bottom: 15px;
         }
-        label {
+        
+        .input-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
+            color: #e0e0e0;
         }
-        input, select {
+        
+        .input-group input, .input-group select {
             width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        button {
-            background: #3498db;
-            color: white;
+            padding: 12px;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        button:hover {
-            background: #2980b9;
-        }
-        .result {
-            background: #e3f2fd;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-            min-height: 30px;
-        }
-        .wind-disc {
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-            height: 500px;
-            margin: 0 auto;
-        }
-        #wind-circle {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: #f9f9f9;
-            border: 2px solid #333;
-            position: absolute;
-            top: 0;
-            left: 0;
-            overflow: visible;
-            touch-action: none;
-        }
-        #inner-disc {
-            position: absolute;
-            width: 70%;
-            height: 70%;
-            border-radius: 50%;
-            background: #e6e6e6;
-            border: 2px solid #555;
-            top: 15%;
-            left: 15%;
-            transform-origin: center;
-            cursor: grab;
-            touch-action: none;
-        }
-        #true-north {
-            position: absolute;
-            width: 2px;
-            height: 50%;
-            background: red;
-            top: 0;
-            left: 50%;
-            transform-origin: bottom center;
-        }
-        #grid-lines {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-        }
-        #wind-vector {
-            position: absolute;
-            width: 2px;
-            height: 30%;
-            background: cyan;
-            top: 20%;
-            left: 50%;
-            transform-origin: bottom center;
-            display: none;
-        }
-        #aircraft {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            top: calc(50% - 20px);
-            left: calc(50% - 20px);
-            z-index: 10;
-        }
-        .aircraft-icon {
-            width: 100%;
-            height: 100%;
-            transform-origin: center;
-        }
-        .degrees {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-        }
-        .degree-mark {
-            position: absolute;
-            width: 1px;
-            height: 10px;
-            background: #333;
-            top: 0;
-            left: 50%;
-            transform-origin: bottom center;
-        }
-        .degree-text {
-            position: absolute;
-            transform-origin: center;
-            font-size: 12px;
-            color: #333;
-        }
-        .wind-controls {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f0f4f8;
             border-radius: 8px;
-        }
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-        }
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            background: #e0e0e0;
-            border: 1px solid #ccc;
-        }
-        .tab.active {
-            background: #3498db;
-            color: white;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        /* Gyroscope-spezifische Styles */
-        .gyro-container {
-            position: relative;
-            perspective: 1000px;
-            width: 300px;
-            height: 300px;
-            margin: 30px auto;
-        }
-        .gyro {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.1s ease;
-        }
-        .gyro-ring {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 8px solid #777;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 16px;
             box-sizing: border-box;
         }
-        .gyro-ring-x {
-            transform: rotateY(90deg);
+        
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
-        .gyro-ring-y {
-            transform: rotateX(90deg);
-        }
-        .gyro-disc {
-            position: absolute;
-            width: 80%;
-            height: 80%;
-            left: 10%;
-            top: 10%;
-            border-radius: 50%;
-            background: radial-gradient(#4a90e2, #2c3e50);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
             color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
             font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
         }
-        .gyro-values {
-            display: flex;
-            justify-content: space-between;
+        
+        .calculate-btn:hover {
+            background: linear-gradient(45deg, #ee5a24, #ff6b6b);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(238, 90, 36, 0.4);
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 255, 0, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid #00ff00;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .wind-triangle {
+            text-align: center;
             margin-top: 20px;
         }
-        .gyro-value {
-            text-align: center;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 5px;
-            flex: 1;
+        
+        .triangle-canvas {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .unit-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .unit-toggle button {
+            padding: 8px 16px;
             margin: 0 5px;
+            border: 2px solid #ffd700;
+            background: transparent;
+            color: #ffd700;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .unit-toggle button.active {
+            background: #ffd700;
+            color: #1e3c72;
+        }
+        
+        .info-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #ffd700;
+        }
+        
+        .formula {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Kompletter E6B Flight Computer mit Gyroskop</h1>
-
-        <div class="computer-container">
-            <!-- Linke Seite: Rechenschieber -->
-            <div class="side">
-                <h2>Rechenschieber (Vorderseite)</h2>
-
-                <div class="calculator-side">
-                    <h3>Zeit, Strecke und Geschwindigkeit</h3>
-                    <div class="input-group">
-                        <label for="speed">Geschwindigkeit (kt)</label>
-                        <input type="number" id="speed" placeholder="z.B. 120">
-                    </div>
-                    <div class="input-group">
-                        <label for="distance">Strecke (NM)</label>
-                        <input type="number" id="distance" placeholder="z.B. 60">
-                    </div>
-                    <div class="input-group">
-                        <label for="time">Zeit (min)</label>
-                        <input type="number" id="time" placeholder="z.B. 30">
-                    </div>
-                    <button onclick="calculateTimeDistanceSpeed()">Berechnen</button>
-                    <div id="tsd-result" class="result"></div>
+        <h1>‚úàÔ∏è E6B Flight Computer</h1>
+        
+        <div class="unit-toggle">
+            <button id="metric-btn" class="active" onclick="toggleUnits('metric')">Metrisch</button>
+            <button id="imperial-btn" onclick="toggleUnits('imperial')">Imperial</button>
+        </div>
+        
+        <div class="calculator-grid">
+            <!-- Winddreieck Berechnung -->
+            <div class="calc-section">
+                <h3>üå™Ô∏è Winddreieck Navigation</h3>
+                <div class="input-group">
+                    <label for="true-course">Rechtweisender Kurs (¬∞):</label>
+                    <input type="number" id="true-course" placeholder="z.B. 090">
                 </div>
-
-                <div class="calculator-side">
-                    <h3>Kraftstoffberechnung</h3>
-                    <div class="input-group">
-                        <label for="fuel-rate">Verbrauch (l/h)</label>
-                        <input type="number" id="fuel-rate" placeholder="z.B. 28">
-                    </div>
-                    <div class="input-group">
-                        <label for="flight-time">Flugzeit (h)</label>
-                        <input type="number" id="flight-time" placeholder="z.B. 1.5">
-                    </div>
-                    <button onclick="calculateFuel()">Berechnen</button>
-                    <div id="fuel-result" class="result"></div>
+                <div class="input-group">
+                    <label for="true-airspeed">Wahre Eigengeschwindigkeit (<span class="speed-unit">km/h</span>):</label>
+                    <input type="number" id="true-airspeed" placeholder="z.B. 200">
                 </div>
-
-                <div class="calculator-side">
-                    <h3>Einheitenumrechner</h3>
-                    <div class="input-group">
-                        <label for="convert-value">Wert</label>
-                        <input type="number" id="convert-value" placeholder="Wert eingeben">
-                    </div>
-                    <div class="input-group">
-                        <label for="from-unit">Von</label>
-                        <select id="from-unit">
-                            <option value="nm">Seemeilen (NM)</option>
-                            <option value="sm">Statute Miles (SM)</option>
-                            <option value="km">Kilometer (km)</option>
-                            <option value="ft">Fuﬂ (ft)</option>
-                            <option value="m">Meter (m)</option>
-                            <option value="gal">Gallonen (US)</option>
-                            <option value="l">Liter (l)</option>
-                            <option value="lbs">Pfund (lbs)</option>
-                            <option value="kg">Kilogramm (kg)</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label for="to-unit">Nach</label>
-                        <select id="to-unit">
-                            <option value="sm">Statute Miles (SM)</option>
-                            <option value="nm">Seemeilen (NM)</option>
-                            <option value="km">Kilometer (km)</option>
-                            <option value="m">Meter (m)</option>
-                            <option value="ft">Fuﬂ (ft)</option>
-                            <option value="l">Liter (l)</option>
-                            <option value="gal">Gallonen (US)</option>
-                            <option value="kg">Kilogramm (kg)</option>
-                            <option value="lbs">Pfund (lbs)</option>
-                        </select>
-                    </div>
-                    <button onclick="convertUnits()">Umrechnen</button>
-                    <div id="convert-result" class="result"></div>
+                <div class="input-group">
+                    <label for="wind-direction">Windrichtung (¬∞):</label>
+                    <input type="number" id="wind-direction" placeholder="z.B. 270">
+                </div>
+                <div class="input-group">
+                    <label for="wind-speed">Windgeschwindigkeit (<span class="speed-unit">km/h</span>):</label>
+                    <input type="number" id="wind-speed" placeholder="z.B. 30">
+                </div>
+                <button class="calculate-btn" onclick="calculateWindTriangle()">Berechnen</button>
+                <div id="wind-result" class="result"></div>
+                <div class="wind-triangle">
+                    <canvas id="wind-canvas" class="triangle-canvas" width="300" height="250"></canvas>
                 </div>
             </div>
-
-            <!-- Rechte Seite: Winddreieck und Gyroskop -->
-            <div class="side">
-                <h2>Windseite und Gyroskop</h2>
-
-                <div class="tabs">
-                    <div class="tab active" onclick="showTab('wind-tab')">Winddreieck</div>
-                    <div class="tab" onclick="showTab('gyro-tab')">Gyroskop</div>
+            
+            <!-- Treibstoff Berechnung -->
+            <div class="calc-section">
+                <h3>‚õΩ Treibstoffverbrauch</h3>
+                <div class="input-group">
+                    <label for="fuel-flow">Treibstoffverbrauch (<span class="fuel-unit">L/h</span>):</label>
+                    <input type="number" id="fuel-flow" placeholder="z.B. 35">
                 </div>
-
-                <!-- Winddreieck-Tab -->
-                <div id="wind-tab" class="tab-content active">
-                    <div class="wind-side">
-                        <div class="wind-controls">
-                            <div class="input-group">
-                                <label for="true-course">True Course (∞)</label>
-                                <input type="number" id="true-course" min="0" max="360" placeholder="z.B. 090">
-                            </div>
-                            <div class="input-group">
-                                <label for="true-airspeed">True Airspeed (kt)</label>
-                                <input type="number" id="true-airspeed" min="0" placeholder="z.B. 120">
-                            </div>
-                            <div class="input-group">
-                                <label for="wind-direction">Windrichtung (∞)</label>
-                                <input type="number" id="wind-direction" min="0" max="360" placeholder="z.B. 180">
-                            </div>
-                            <div class="input-group">
-                                <label for="wind-speed">Windgeschwindigkeit (kt)</label>
-                                <input type="number" id="wind-speed" min="0" placeholder="z.B. 15">
-                            </div>
-                            <button onclick="calculateWindTriangle()">Winddreieck berechnen</button>
-                            <div id="wind-result" class="result"></div>
-                        </div>
-
-                        <div class="wind-disc">
-                            <svg id="wind-circle" viewBox="0 0 500 500">
-                                <!-- ƒuﬂerer Kreis mit Gradzahlen -->
-                                <circle cx="250" cy="250" r="240" fill="#f9f9f9" stroke="#333" stroke-width="2"/>
-
-                                <!-- Gradmarkierungen -->
-                                <g id="degree-marks"></g>
-
-                                <!-- Innerer drehbarer Kreis -->
-                                <g id="inner-disc" transform="rotate(0, 250, 250)">
-                                    <circle cx="250" cy="250" r="180" fill="#e6e6e6" stroke="#555" stroke-width="2"/>
-                                    <!-- Gitterlinien -->
-                                    <g id="grid-lines">
-                                        <line x1="70" y1="250" x2="430" y2="250" stroke="#aaa" stroke-width="1"/>
-                                        <line x1="250" y1="70" x2="250" y2="430" stroke="#aaa" stroke-width="1"/>
-                                    </g>
-                                    <!-- Flugzeug-Symbol in der Mitte -->
-                                    <g id="aircraft" transform="translate(250, 250)">
-                                        <path d="M0,-15 L10,0 L5,15 L-5,15 L-10,0 Z" fill="#3498db" stroke="#2c3e50" stroke-width="1.5"/>
-                                    </g>
-                                </g>
-
-                                <!-- Wind-Vektor -->
-                                <line id="wind-vector" x1="250" y1="250" x2="250" y2="100" stroke="cyan" stroke-width="3" marker-end="url(#arrowhead)"/>
-
-                                <!-- Kurs-Vektor -->
-                                <line id="course-vector" x1="250" y1="250" x2="450" y2="250" stroke="green" stroke-width="3" marker-end="url(#arrowhead)"/>
-
-                                <!-- Heading-Vektor -->
-                                <line id="heading-vector" x1="250" y1="250" x2="430" y2="230" stroke="red" stroke-width="3" marker-end="url(#arrowhead)"/>
-
-                                <!-- Pfeilspitzen-Definitionen -->
-                                <defs>
-                                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                        <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
-                                    </marker>
-                                </defs>
-
-                                <!-- True North Marker -->
-                                <line id="true-north" x1="250" y1="10" x2="250" y2="250" stroke="red" stroke-width="2"/>
-                                <text x="260" y="30" fill="red">N</text>
-                            </svg>
-                        </div>
-                    </div>
+                <div class="input-group">
+                    <label for="flight-time-hours">Flugzeit (Stunden):</label>
+                    <input type="number" id="flight-time-hours" step="0.1" placeholder="z.B. 2.5">
                 </div>
-
-                <!-- Gyroskop-Tab -->
-                <div id="gyro-tab" class="tab-content">
-                    <div class="wind-side">
-                        <h3>Gyroskop (K¸nstlicher Horizont)</h3>
-
-                        <div class="gyro-container">
-                            <div class="gyro" id="gyroscope">
-                                <div class="gyro-ring gyro-ring-x"></div>
-                                <div class="gyro-ring gyro-ring-y"></div>
-                                <div class="gyro-ring"></div>
-                                <div class="gyro-disc">GYRO</div>
-                            </div>
-                        </div>
-
-                        <div class="gyro-values">
-                            <div class="gyro-value">
-                                <div>Pitch</div>
-                                <div id="pitch-value">0∞</div>
-                            </div>
-                            <div class="gyro-value">
-                                <div>Roll</div>
-                                <div id="roll-value">0∞</div>
-                            </div>
-                            <div class="gyro-value">
-                                <div>Heading</div>
-                                <div id="heading-value">0∞</div>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="gyro-mode">Gyroskop-Modus</label>
-                            <select id="gyro-mode" onchange="changeGyroMode()">
-                                <option value="manual">Manuell</option>
-                                <option value="device">Ger‰tesensoren (wenn verf¸gbar)</option>
-                            </select>
-                        </div>
-
-                        <div id="manual-controls">
-                            <div class="input-group">
-                                <label for="manual-pitch">Pitch (Nicken) -90∞ bis 90∞</label>
-                                <input type="range" id="manual-pitch" min="-90" max="90" value="0" oninput="updateGyroManual()">
-                            </div>
-                            <div class="input-group">
-                                <label for="manual-roll">Roll (Rollen) -180∞ bis 180∞</label>
-                                <input type="range" id="manual-roll" min="-180" max="180" value="0" oninput="updateGyroManual()">
-                            </div>
-                            <div class="input-group">
-                                <label for="manual-heading">Heading (Gieren) 0∞ bis 359∞</label>
-                                <input type="range" id="manual-heading" min="0" max="359" value="0" oninput="updateGyroManual()">
-                            </div>
-                        </div>
-                    </div>
+                <div class="input-group">
+                    <label for="fuel-reserve">Reserve (%):</label>
+                    <input type="number" id="fuel-reserve" value="10" placeholder="z.B. 10">
                 </div>
+                <button class="calculate-btn" onclick="calculateFuel()">Berechnen</button>
+                <div id="fuel-result" class="result"></div>
+            </div>
+            
+            <!-- Zeit-Geschwindigkeit-Entfernung -->
+            <div class="calc-section">
+                <h3>üìè Zeit-Geschwindigkeit-Entfernung</h3>
+                <div class="input-group">
+                    <label for="calc-type">Berechnung:</label>
+                    <select id="calc-type">
+                        <option value="time">Zeit berechnen</option>
+                        <option value="speed">Geschwindigkeit berechnen</option>
+                        <option value="distance">Entfernung berechnen</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="distance">Entfernung (<span class="distance-unit">km</span>):</label>
+                    <input type="number" id="distance" placeholder="z.B. 450">
+                </div>
+                <div class="input-group">
+                    <label for="speed">Geschwindigkeit (<span class="speed-unit">km/h</span>):</label>
+                    <input type="number" id="speed" placeholder="z.B. 180">
+                </div>
+                <div class="input-group">
+                    <label for="time">Zeit (Stunden):</label>
+                    <input type="number" id="time" step="0.1" placeholder="z.B. 2.5">
+                </div>
+                <button class="calculate-btn" onclick="calculateTSD()">Berechnen</button>
+                <div id="tsd-result" class="result"></div>
+            </div>
+            
+            <!-- Luftdichte Berechnung -->
+            <div class="calc-section">
+                <h3>üå°Ô∏è Luftdichte & Leistung</h3>
+                <div class="input-group">
+                    <label for="pressure-altitude">Druckh√∂he (<span class="altitude-unit">m</span>):</label>
+                    <input type="number" id="pressure-altitude" placeholder="z.B. 1500">
+                </div>
+                <div class="input-group">
+                    <label for="temperature">Temperatur (¬∞C):</label>
+                    <input type="number" id="temperature" placeholder="z.B. 15">
+                </div>
+                <div class="input-group">
+                    <label for="indicated-airspeed">Angezeigte Geschwindigkeit (<span class="speed-unit">km/h</span>):</label>
+                    <input type="number" id="indicated-airspeed" placeholder="z.B. 200">
+                </div>
+                <button class="calculate-btn" onclick="calculateDensityAltitude()">Berechnen</button>
+                <div id="density-result" class="result"></div>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <h3>üìö Formeln und Hinweise</h3>
+            <div class="formula">
+                <strong>Winddreieck:</strong><br>
+                ‚Ä¢ Abtrift = arcsin(Windgeschwindigkeit √ó sin(Winddifferenz) / Eigengeschwindigkeit)<br>
+                ‚Ä¢ Grundgeschwindigkeit = ‚àö(TAS¬≤ + WS¬≤ - 2√óTAS√óWS√ócos(Winddifferenz))
+            </div>
+            <div class="formula">
+                <strong>Zeit-Geschwindigkeit-Entfernung:</strong><br>
+                ‚Ä¢ Zeit = Entfernung √∑ Geschwindigkeit<br>
+                ‚Ä¢ Geschwindigkeit = Entfernung √∑ Zeit<br>
+                ‚Ä¢ Entfernung = Geschwindigkeit √ó Zeit
+            </div>
+            <div class="formula">
+                <strong>Dichteh√∂he:</strong><br>
+                ‚Ä¢ Dichteh√∂he ‚âà Druckh√∂he + 120 √ó (Temperatur - Standardtemperatur)
             </div>
         </div>
     </div>
 
-<script>
-// ===== Allgemeine Funktionen =====
-function showTab(tabId) {
-    const tabs = document.querySelectorAll('.tab');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabs.forEach(tab => tab.classList.remove('active'));
-    tabContents.forEach(content => content.classList.remove('active'));
-
-    document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
-    document.getElementById(tabId).classList.add('active');
-}
-
-// ===== Rechenschieber-Funktionen =====
-function calculateTimeDistanceSpeed() {
-    const speed = parseFloat(document.getElementById('speed').value);
-    const distance = parseFloat(document.getElementById('distance').value);
-    const time = parseFloat(document.getElementById('time').value);
-
-    let result = '';
-
-    if (!isNaN(speed) && !isNaN(distance) && isNaN(time)) {
-        // Berechne Zeit
-        const calculatedTime = (distance / speed) * 60; // in Minuten
-        const hours = Math.floor(calculatedTime / 60);
-        const minutes = Math.round(calculatedTime % 60);
-        result = `Zeit: <b>${hours}h ${minutes}min</b>`;
-    } else if (!isNaN(speed) && !isNaN(time) && isNaN(distance)) {
-        // Berechne Strecke
-        const calculatedDistance = (speed * time) / 60; // in NM
-        result = `Strecke: <b>${calculatedDistance.toFixed(1)} NM</b>`;
-    } else if (!isNaN(distance) && !isNaN(time) && isNaN(speed)) {
-        // Berechne Geschwindigkeit
-        const calculatedSpeed = (distance / time) * 60; // in Knoten
-        result = `Geschwindigkeit: <b>${calculatedSpeed.toFixed(1)} kt</b>`;
-    } else {
-        result = 'Bitte geben Sie genau zwei der drei Werte ein.';
-    }
-
-    document.getElementById('tsd-result').innerHTML = result;
-}
-
-function calculateFuel() {
-    const fuelRate = parseFloat(document.getElementById('fuel-rate').value);
-    const flightTime = parseFloat(document.getElementById('flight-time').value);
-
-    if (isNaN(fuelRate) || isNaN(flightTime)) {
-        document.getElementById('fuel-result').innerHTML = 'Bitte geben Sie alle Werte ein.';
-        return;
-    }
-
-    const fuelRequired = fuelRate * flightTime;
-    const fuelWithReserve = fuelRequired * 1.3; // 30% Reserve
-
-    document.getElementById('fuel-result').innerHTML =
-        `Benˆtigter Treibstoff: <b>${fuelRequired.toFixed(1)} Liter</b><br>` +
-        `Mit 30% Reserve: <b>${fuelWithReserve.toFixed(1)} Liter</b>`;
-}
-
-const conversionFactors = {
-    'nm-sm': 1.15078,
-    'nm-km': 1.852,
-    'nm-m': 1852,
-    'nm-ft': 6076.12,
-    'sm-nm': 0.868976,
-    'sm-km': 1.60934,
-    'sm-m': 1609.34,
-    'sm-ft': 5280,
-    'km-nm': 0.539957,
-    'km-sm': 0.621371,
-    'km-m': 1000,
-    'km-ft': 3280.84,
-    'ft-nm': 0.000164579,
-    'ft-sm': 0.000189394,
-    'ft-km': 0.0003048,
-    'ft-m': 0.3048,
-    'm-nm': 0.000539957,
-    'm-sm': 0.000621371,
-    'm-km': 0.001,
-    'm-ft': 3.28084,
-    'gal-l': 3.78541,
-    'l-gal': 0.264172,
-    'lbs-kg': 0.453592,
-    'kg-lbs': 2.20462
-};
-
-function convertUnits() {
-    const value = parseFloat(document.getElementById('convert-value').value);
-    const fromUnit = document.getElementById('from-unit').value;
-    const toUnit = document.getElementById('to-unit').value;
-
-    if (isNaN(value)) {
-        document.getElementById('convert-result').innerHTML = 'Bitte geben Sie einen g¸ltigen Wert ein.';
-        return;
-    }
-
-    const conversionKey = `${fromUnit}-${toUnit}`;
-
-    if (conversionFactors[conversionKey]) {
-        const result = value * conversionFactors[conversionKey];
-        document.getElementById('convert-result').innerHTML =
-            `${value} ${getUnitFullName(fromUnit)} = <b>${result.toFixed(2)} ${getUnitFullName(toUnit)}</b>`;
-    } else {
-        document.getElementById('convert-result').innerHTML = 'Umrechnung nicht verf¸gbar.';
-    }
-}
-
-function getUnitFullName(unit) {
-    const units = {
-        'nm': 'Seemeilen (NM)',
-        'sm': 'Statute Miles (SM)',
-        'km': 'Kilometer (km)',
-        'm': 'Meter (m)',
-        'ft': 'Fuﬂ (ft)',
-        'gal': 'Gallonen (US)',
-        'l': 'Liter (l)',
-        'lbs': 'Pfund (lbs)',
-        'kg': 'Kilogramm (kg)'
-    };
-    return units[unit] || unit;
-}
-
-// ===== Winddreieck-Funktionen =====
-function initDegreeMarks() {
-    const degreesGroup = document.getElementById('degree-marks');
-
-    for (let i = 0; i < 360; i += 10) {
-        // Markierung
-        const mark = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        const angle = i * Math.PI / 180;
-        const x1 = 250 + Math.sin(angle) * 240;
-        const y1 = 250 - Math.cos(angle) * 240;
-        const x2 = 250 + Math.sin(angle) * 220;
-        const y2 = 250 - Math.cos(angle) * 220;
-
-        mark.setAttribute("x1", x1);
-        mark.setAttribute("y1", y1);
-        mark.setAttribute("x2", x2);
-        mark.setAttribute("y2", y2);
-        mark.setAttribute("stroke", "#333");
-        mark.setAttribute("stroke-width", i % 30 === 0 ? "2" : "1");
-        degreesGroup.appendChild(mark);
-
-        // Text
-        if (i % 30 === 0) {
-            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            const textX = 250 + Math.sin(angle) * 200;
-            const textY = 250 - Math.cos(angle) * 200;
-
-            text.setAttribute("x", textX);
-            text.setAttribute("y", textY);
-            text.setAttribute("text-anchor", "middle");
-            text.setAttribute("alignment-baseline", "middle");
-            text.setAttribute("font-size", "12");
-            text.setAttribute("fill", "#333");
-            text.textContent = i;
-            degreesGroup.appendChild(text);
+    <script>
+        let currentUnits = 'metric';
+        
+        function toggleUnits(units) {
+            currentUnits = units;
+            document.getElementById('metric-btn').classList.toggle('active', units === 'metric');
+            document.getElementById('imperial-btn').classList.toggle('active', units === 'imperial');
+            
+            // Update unit labels
+            const speedUnits = document.querySelectorAll('.speed-unit');
+            const distanceUnits = document.querySelectorAll('.distance-unit');
+            const altitudeUnits = document.querySelectorAll('.altitude-unit');
+            const fuelUnits = document.querySelectorAll('.fuel-unit');
+            
+            speedUnits.forEach(el => el.textContent = units === 'metric' ? 'km/h' : 'kts');
+            distanceUnits.forEach(el => el.textContent = units === 'metric' ? 'km' : 'nm');
+            altitudeUnits.forEach(el => el.textContent = units === 'metric' ? 'm' : 'ft');
+            fuelUnits.forEach(el => el.textContent = units === 'metric' ? 'L/h' : 'gal/h');
         }
-    }
-}
-
-// Initialisierung des drehbaren Kreises
-function initRotatableDisc() {
-    const innerDisc = document.getElementById('inner-disc');
-    let isDragging = false;
-    let previousAngle = 0;
-    let currentRotation = 0;
-
-    function getAngle(cx, cy, px, py) {
-        return Math.atan2(py - cy, px - cx) * 180 / Math.PI;
-    }
-
-    // Maus-Events
-    innerDisc.addEventListener('mousedown', startDrag);
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', endDrag);
-
-    // Touch-Events
-    innerDisc.addEventListener('touchstart', startDrag);
-    document.addEventListener('touchmove', drag);
-    document.addEventListener('touchend', endDrag);
-
-    function startDrag(e) {
-        e.preventDefault();
-        isDragging = true;
-
-        const svgRect = document.getElementById('wind-circle').getBoundingClientRect();
-        const centerX = svgRect.left + svgRect.width / 2;
-        const centerY = svgRect.top + svgRect.height / 2;
-
-        const clientX = e.clientX || e.touches[0].clientX;
-        const clientY = e.clientY || e.touches[0].clientY;
-
-        previousAngle = getAngle(centerX, centerY, clientX, clientY);
-    }
-
-    function drag(e) {
-        if (!isDragging) return;
-        e.preventDefault();
-
-        const svgRect = document.getElementById('wind-circle').getBoundingClientRect();
-        const centerX = svgRect.left + svgRect.width / 2;
-        const centerY = svgRect.top + svgRect.height / 2;
-
-        const clientX = e.clientX || e.touches[0].clientX;
-        const clientY = e.clientY || e.touches[0].clientY;
-
-        const currentAngle = getAngle(centerX, centerY, clientX, clientY);
-        const angleDelta = currentAngle - previousAngle;
-
-        currentRotation = (currentRotation + angleDelta) % 360;
-        innerDisc.setAttribute('transform', `rotate(${currentRotation}, 250, 250)`);
-
-        previousAngle = currentAngle;
-    }
-
-    function endDrag() {
-        isDragging = false;
-    }
-}
-
-function calculateWindTriangle() {
-    const trueCourse = parseFloat(document.getElementById('true-course').value);
-    const trueAirspeed = parseFloat(document.getElementById('true-airspeed').value);
-    const windDirection = parseFloat(document.getElementById('wind-direction').value);
-    const windSpeed = parseFloat(document.getElementById('wind-speed').value);
-
-    if (isNaN(trueCourse) || isNaN(trueAirspeed) || isNaN(windDirection) || isNaN(windSpeed)) {
-        document.getElementById('wind-result').innerHTML = 'Bitte geben Sie alle Werte ein.';
-        return;
-    }
-
-    // Winkel zwischen Kurs und Wind in Radiant umrechnen
-    const courseRad = trueCourse * Math.PI / 180;
-    const windRad = windDirection * Math.PI / 180;
-
-    // Windkomponenten berechnen
-    const windAngle = ((windDirection - trueCourse + 360) % 360) * Math.PI / 180;
-    const crosswind = windSpeed * Math.sin(windAngle);
-    const headwind = windSpeed * Math.cos(windAngle);
-
-    // Windkorrekturwinkel (WCA) berechnen
-    const wca = Math.atan2(crosswind, trueAirspeed) * 180 / Math.PI;
-
-    // Heading berechnen
-    const heading = (trueCourse + wca + 360) % 360;
-
-    // Groundspeed berechnen
-    const groundSpeed = trueAirspeed * Math.cos(wca * Math.PI / 180) - headwind;
-
-    // Ergebnis anzeigen
-    document.getElementById('wind-result').innerHTML =
-        `Windkorrekturwinkel: <b>${wca.toFixed(1)}∞</b><br>` +
-        `Heading: <b>${heading.toFixed(1)}∞</b><br>` +
-        `Groundspeed: <b>${groundSpeed.toFixed(1)} kt</b>`;
-
-    // Vektoren aktualisieren
-    updateWindTriangleVisual(trueCourse, trueAirspeed, windDirection, windSpeed, heading, groundSpeed);
-}
-
-function updateWindTriangleVisual(course, tas, windDir, windSpeed, heading, gs) {
-    // Vektor-Elemente
-    const windVector = document.getElementById('wind-vector');
-    const courseVector = document.getElementById('course-vector');
-    const headingVector = document.getElementById('heading-vector');
-
-    // Skala f¸r die Vektoren (Geschwindigkeit zu Pixeln)
-    const scale = 0.8; // Skalierungsfaktor
-
-    // Zentrum des SVG
-    const center = 250;
-
-    // Wind-Vektor aktualisieren
-    const windAngle = (windDir + 180) % 360; // Umkehren f¸r Richtung des Windes
-    const windX = center + Math.sin(windAngle * Math.PI / 180) * windSpeed * scale;
-    const windY = center - Math.cos(windAngle * Math.PI / 180) * windSpeed * scale;
-
-    windVector.setAttribute('x1', center);
-    windVector.setAttribute('y1', center);
-    windVector.setAttribute('x2', windX);
-    windVector.setAttribute('y2', windY);
-    windVector.style.display = 'block';
-
-    // Kurs-Vektor aktualisieren
-    const courseX = center + Math.sin(course * Math.PI / 180) * gs * scale;
-    const courseY = center - Math.cos(course * Math.PI / 180) * gs * scale;
-
-    courseVector.setAttribute('x1', center);
-    courseVector.setAttribute('y1', center);
-    courseVector.setAttribute('x2', courseX);
-    courseVector.setAttribute('y2', courseY);
-
-    // Heading-Vektor aktualisieren
-    const headingX = center + Math.sin(heading * Math.PI / 180) * tas * scale;
-    const headingY = center - Math.cos(heading * Math.PI / 180) * tas * scale;
-
-    headingVector.setAttribute('x1', center);
-    headingVector.setAttribute('y1', center);
-    headingVector.setAttribute('x2', headingX);
-    headingVector.setAttribute('y2', headingY);
-
-    // Inneren Kreis drehen
-    document.getElementById('inner-disc').setAttribute('transform', `rotate(${course}, 250, 250)`);
-}
-
-// ===== Gyroskop-Funktionen =====
-let gyroMode = 'manual';
-let deviceOrientationSupported = false;
-
-function changeGyroMode() {
-    gyroMode = document.getElementById('gyro-mode').value;
-
-    if (gyroMode === 'device') {
-        // ‹berpr¸fen, ob DeviceOrientation verf¸gbar ist
-        if (window.DeviceOrientationEvent) {
-            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                // iOS 13+ erfordert Berechtigungsanfrage
-                DeviceOrientationEvent.requestPermission()
-                    .then(response => {
-                        if (response === 'granted') {
-                            window.addEventListener('deviceorientation', handleDeviceOrientation);
-                            deviceOrientationSupported = true;
-                        } else {
-                            alert('Berechtigung zur Nutzung der Ger‰tesensoren verweigert.');
-                            document.getElementById('gyro-mode').value = 'manual';
-                            gyroMode = 'manual';
-                        }
-                    })
-                    .catch(console.error);
-            } else {
-                // Andere Browser
-                window.addEventListener('deviceorientation', handleDeviceOrientation);
-                deviceOrientationSupported = true;
+        
+        function toRadians(degrees) {
+            return degrees * Math.PI / 180;
+        }
+        
+        function toDegrees(radians) {
+            return radians * 180 / Math.PI;
+        }
+        
+        function calculateWindTriangle() {
+            const tc = parseFloat(document.getElementById('true-course').value);
+            const tas = parseFloat(document.getElementById('true-airspeed').value);
+            const wd = parseFloat(document.getElementById('wind-direction').value);
+            const ws = parseFloat(document.getElementById('wind-speed').value);
+            
+            if (isNaN(tc) || isNaN(tas) || isNaN(wd) || isNaN(ws)) {
+                alert('Bitte alle Felder ausf√ºllen!');
+                return;
             }
-        } else {
-            alert('Ihr Ger‰t unterst¸tzt keine Orientierungssensoren. Manueller Modus wird verwendet.');
-            document.getElementById('gyro-mode').value = 'manual';
-            gyroMode = 'manual';
+            
+            // Convert wind direction to wind vector direction
+            const windVector = (wd + 180) % 360;
+            
+            // Calculate wind angle relative to desired track
+            const windAngle = toRadians(windVector - tc);
+            
+            // Calculate drift angle
+            const driftAngle = Math.asin((ws * Math.sin(windAngle)) / tas);
+            const driftDegrees = toDegrees(driftAngle);
+            
+            // Calculate magnetic heading
+            const magneticHeading = (tc - driftDegrees + 360) % 360;
+            
+            // Calculate ground speed
+            const groundSpeed = Math.sqrt(tas * tas + ws * ws - 2 * tas * ws * Math.cos(windAngle));
+            
+            const result = document.getElementById('wind-result');
+            const speedUnit = currentUnits === 'metric' ? 'km/h' : 'kts';
+            
+            result.innerHTML = `
+                <strong>Ergebnisse:</strong><br>
+                üß≠ Magnetischer Steuerkurs: ${magneticHeading.toFixed(1)}¬∞<br>
+                üìê Abtrift: ${driftDegrees.toFixed(1)}¬∞<br>
+                üèÉ Grundgeschwindigkeit: ${groundSpeed.toFixed(1)} ${speedUnit}<br>
+                ‚è±Ô∏è Zeitersparnis/verlust: ${((groundSpeed - tas) / tas * 100).toFixed(1)}%
+            `;
+            result.classList.add('show');
+            
+            drawWindTriangle(tc, tas, wd, ws, magneticHeading, groundSpeed, driftDegrees);
         }
-    } else {
-        // Ger‰tesensor-Event-Listener entfernen
-        if (deviceOrientationSupported) {
-            window.removeEventListener('deviceorientation', handleDeviceOrientation);
+        
+        function drawWindTriangle(tc, tas, wd, ws, mh, gs, drift) {
+            const canvas = document.getElementById('wind-canvas');
+            const ctx = canvas.getContext('2d');
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Scale factors
+            const scale = 80 / tas;
+            
+            // Draw coordinate system
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, canvas.height);
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(canvas.width, centerY);
+            ctx.stroke();
+            
+            // Draw compass rose
+            ctx.font = '12px Arial';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText('N', centerX, 15);
+            ctx.fillText('S', centerX, canvas.height - 5);
+            ctx.textAlign = 'left';
+            ctx.fillText('E', canvas.width - 15, centerY + 4);
+            ctx.textAlign = 'right';
+            ctx.fillText('W', 15, centerY + 4);
+            
+            // Calculate positions
+            const tasX = tas * scale * Math.sin(toRadians(mh));
+            const tasY = -tas * scale * Math.cos(toRadians(mh));
+            const wsX = ws * scale * Math.sin(toRadians(wd));
+            const wsY = -ws * scale * Math.cos(toRadians(wd));
+            const gsX = gs * scale * Math.sin(toRadians(tc));
+            const gsY = -gs * scale * Math.cos(toRadians(tc));
+            
+            // Draw wind vector (red)
+            ctx.strokeStyle = '#ff4444';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX + wsX, centerY + wsY);
+            ctx.stroke();
+            
+            // Draw TAS vector (blue)
+            ctx.strokeStyle = '#4444ff';
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX + tasX, centerY + tasY);
+            ctx.stroke();
+            
+            // Draw ground track (green)
+            ctx.strokeStyle = '#44ff44';
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX + gsX, centerY + gsY);
+            ctx.stroke();
+            
+            // Add labels
+            ctx.font = '10px Arial';
+            ctx.fillStyle = '#ff4444';
+            ctx.fillText('Wind', centerX + wsX/2 + 5, centerY + wsY/2);
+            ctx.fillStyle = '#4444ff';
+            ctx.fillText('TAS', centerX + tasX/2 + 5, centerY + tasY/2);
+            ctx.fillStyle = '#44ff44';
+            ctx.fillText('GS', centerX + gsX/2 + 5, centerY + gsY/2);
         }
-    }
-}
-
-function handleDeviceOrientation(event) {
-    if (gyroMode !== 'device') return;
-
-    // Beta: Pitch (Nicken) - Rotation um die X-Achse (-180 bis 180)
-    // Gamma: Roll (Rollen) - Rotation um die Y-Achse (-90 bis 90)
-    // Alpha: Heading (Gieren) - Rotation um die Z-Achse (0 bis 360)
-    const pitch = event.beta;
-    const roll = event.gamma;
-    const heading = event.alpha;
-
-    updateGyro(pitch, roll, heading);
-}
-
-function updateGyroManual() {
-    if (gyroMode !== 'manual') return;
-
-    const pitch = parseFloat(document.getElementById('manual-pitch').value);
-    const roll = parseFloat(document.getElementById('manual-roll').value);
-    const heading = parseFloat(document.getElementById('manual-heading').value);
-
-    updateGyro(pitch, roll, heading);
-}
-
-function updateGyro(pitch, roll, heading) {
-    // Werte auf den Gyro anwenden
-    const gyro = document.getElementById('gyroscope');
-
-    // Werte auf sinnvolle Bereiche begrenzen
-    const limitedPitch = Math.max(-90, Math.min(90, pitch));
-    const limitedRoll = Math.max(-180, Math.min(180, roll));
-
-    // 3D-Transformation anwenden
-    gyro.style.transform = `rotateX(${limitedPitch}deg) rotateY(${limitedRoll}deg) rotateZ(${heading}deg)`;
-
-    // Werte anzeigen
-    document.getElementById('pitch-value').textContent = `${limitedPitch.toFixed(1)}∞`;
-    document.getElementById('roll-value').textContent = `${limitedRoll.toFixed(1)}∞`;
-    document.getElementById('heading-value').textContent = `${heading.toFixed(1)}∞`;
-}
-
-// Initialisierung
-window.onload = function() {
-    initDegreeMarks();
-    initRotatableDisc();
-    updateGyroManual(); // Initialen Gyro-Status setzen
-};
-</script>
+        
+        function calculateFuel() {
+            const fuelFlow = parseFloat(document.getElementById('fuel-flow').value);
+            const flightTime = parseFloat(document.getElementById('flight-time-hours').value);
+            const reserve = parseFloat(document.getElementById('fuel-reserve').value) || 10;
+            
+            if (isNaN(fuelFlow) || isNaN(flightTime)) {
+                alert('Bitte Treibstoffverbrauch und Flugzeit eingeben!');
+                return;
+            }
+            
+            const fuelRequired = fuelFlow * flightTime;
+            const reserveFuel = fuelRequired * (reserve / 100);
+            const totalFuel = fuelRequired + reserveFuel;
+            
+            const result = document.getElementById('fuel-result');
+            const fuelUnit = currentUnits === 'metric' ? 'Liter' : 'Gallonen';
+            
+            result.innerHTML = `
+                <strong>Treibstoffberechnung:</strong><br>
+                ‚õΩ Ben√∂tigter Treibstoff: ${fuelRequired.toFixed(1)} ${fuelUnit}<br>
+                üõ°Ô∏è Reserve (${reserve}%): ${reserveFuel.toFixed(1)} ${fuelUnit}<br>
+                üìä Gesamtbedarf: ${totalFuel.toFixed(1)} ${fuelUnit}<br>
+                üí∞ Sicherheitsmarge: ${(totalFuel * 1.1).toFixed(1)} ${fuelUnit}
+            `;
+            result.classList.add('show');
+        }
+        
+        function calculateTSD() {
+            const calcType = document.getElementById('calc-type').value;
+            const distance = parseFloat(document.getElementById('distance').value);
+            const speed = parseFloat(document.getElementById('speed').value);
+            const time = parseFloat(document.getElementById('time').value);
+            
+            const result = document.getElementById('tsd-result');
+            const speedUnit = currentUnits === 'metric' ? 'km/h' : 'kts';
+            const distanceUnit = currentUnits === 'metric' ? 'km' : 'nm';
+            
+            let resultText = '<strong>Berechnung:</strong><br>';
+            
+            if (calcType === 'time') {
+                if (isNaN(distance) || isNaN(speed) || speed === 0) {
+                    alert('Bitte Entfernung und Geschwindigkeit eingeben!');
+                    return;
+                }
+                const calculatedTime = distance / speed;
+                const hours = Math.floor(calculatedTime);
+                const minutes = Math.round((calculatedTime - hours) * 60);
+                resultText += `‚è±Ô∏è Flugzeit: ${calculatedTime.toFixed(2)} Stunden (${hours}:${minutes.toString().padStart(2, '0')} h:mm)`;
+            } else if (calcType === 'speed') {
+                if (isNaN(distance) || isNaN(time) || time === 0) {
+                    alert('Bitte Entfernung und Zeit eingeben!');
+                    return;
+                }
+                const calculatedSpeed = distance / time;
+                resultText += `üèÉ Geschwindigkeit: ${calculatedSpeed.toFixed(1)} ${speedUnit}`;
+            } else if (calcType === 'distance') {
+                if (isNaN(speed) || isNaN(time)) {
+                    alert('Bitte Geschwindigkeit und Zeit eingeben!');
+                    return;
+                }
+                const calculatedDistance = speed * time;
+                resultText += `üìè Entfernung: ${calculatedDistance.toFixed(1)} ${distanceUnit}`;
+            }
+            
+            result.innerHTML = resultText;
+            result.classList.add('show');
+        }
+        
+        function calculateDensityAltitude() {
+            const pressureAlt = parseFloat(document.getElementById('pressure-altitude').value);
+            const temp = parseFloat(document.getElementById('temperature').value);
+            const ias = parseFloat(document.getElementById('indicated-airspeed').value);
+            
+            if (isNaN(pressureAlt) || isNaN(temp)) {
+                alert('Bitte Druckh√∂he und Temperatur eingeben!');
+                return;
+            }
+            
+            // Standard temperature at sea level: 15¬∞C, lapse rate: 2¬∞C per 1000ft or 6.5¬∞C per 1000m
+            const standardTemp = currentUnits === 'metric' ? 
+                15 - (pressureAlt / 1000) * 6.5 : 
+                59 - (pressureAlt / 1000) * 3.5;
+            
+            const tempDifference = temp - standardTemp;
+            
+            // Density altitude calculation
+            const densityAltitude = currentUnits === 'metric' ?
+                pressureAlt + (120 * tempDifference) :
+                pressureAlt + (120 * tempDifference * 1.8);
+            
+            // True airspeed calculation (if IAS provided)
+            let tasResult = '';
+            if (!isNaN(ias)) {
+                const densityRatio = Math.exp(-densityAltitude / (currentUnits === 'metric' ? 8400 : 27500));
+                const tas = ias / Math.sqrt(densityRatio);
+                const speedUnit = currentUnits === 'metric' ? 'km/h' : 'kts';
+                tasResult = `<br>üèÉ Wahre Eigengeschwindigkeit: ${tas.toFixed(1)} ${speedUnit}`;
+            }
+            
+            const result = document.getElementById('density-result');
+            const altUnit = currentUnits === 'metric' ? 'm' : 'ft';
+            
+            result.innerHTML = `
+                <strong>Luftdichte Berechnung:</strong><br>
+                üå°Ô∏è Standardtemperatur: ${standardTemp.toFixed(1)}¬∞C<br>
+                üìè Dichteh√∂he: ${densityAltitude.toFixed(0)} ${altUnit}<br>
+                üìä H√∂hendifferenz: ${(densityAltitude - pressureAlt).toFixed(0)} ${altUnit}<br>
+                ‚ö†Ô∏è Leistungsverlust: ~${((densityAltitude - pressureAlt) / (currentUnits === 'metric' ? 300 : 1000) * 100).toFixed(1)}%${tasResult}
+            `;
+            result.classList.add('show');
+        }
+        
+        // Initialize canvas
+        window.onload = function() {
+            const canvas = document.getElementById('wind-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.font = '14px Arial';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText('Winddreieck wird hier angezeigt', canvas.width/2, canvas.height/2);
+        };
+    </script>
 </body>
 </html>

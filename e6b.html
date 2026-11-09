@@ -1,567 +1,1102 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E6B Flight Computer</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: white;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        h1 {
-            text-align: center;
-            font-size: 2.5em;
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        .calculator-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-        
-        .calc-section {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 15px;
-            padding: 25px;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: transform 0.3s ease;
-        }
-        
-        .calc-section:hover {
-            transform: translateY(-5px);
-        }
-        
-        .calc-section h3 {
-            color: #ffd700;
-            margin-bottom: 20px;
-            font-size: 1.4em;
-            text-align: center;
-        }
-        
-        .input-group {
-            margin-bottom: 15px;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #e0e0e0;
-        }
-        
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-        
-        .input-group input:focus, .input-group select:focus {
-            outline: none;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        }
-        
-        .calculate-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 15px;
-        }
-        
-        .calculate-btn:hover {
-            background: linear-gradient(45deg, #ee5a24, #ff6b6b);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(238, 90, 36, 0.4);
-        }
-        
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(0, 255, 0, 0.1);
-            border-radius: 10px;
-            border-left: 4px solid #00ff00;
-            font-weight: bold;
-            display: none;
-        }
-        
-        .result.show {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .wind-triangle {
-            text-align: center;
-            margin-top: 20px;
-        }
-        
-        .triangle-canvas {
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.2);
-        }
-        
-        .unit-toggle {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        
-        .unit-toggle button {
-            padding: 8px 16px;
-            margin: 0 5px;
-            border: 2px solid #ffd700;
-            background: transparent;
-            color: #ffd700;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .unit-toggle button.active {
-            background: #ffd700;
-            color: #1e3c72;
-        }
-        
-        .info-panel {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
-            border-left: 4px solid #ffd700;
-        }
-        
-        .formula {
-            font-family: 'Courier New', monospace;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E6B Flight Computer</title>
+<style>
+  :root{
+    --bg:#0b0f14;
+    --panel:#131a23;
+    --panel-2:#18212c;
+    --line:#243141;
+    --text:#e6edf5;
+    --muted:#9aabbf;
+    --accent:#4cc2ff;
+    --accent-dim:#1b5f80;
+    --good:#3ddc97;
+    --warn:#ffcc4d;
+    --bad:#ff6b6b;
+    --wind:#ff9f43;
+    --mono:'SF Mono',ui-monospace,'Cascadia Mono',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  header{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    padding:18px 22px;border-bottom:1px solid var(--line);background:var(--panel);
+    position:sticky;top:0;z-index:50;
+  }
+  .brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .brand h1{margin:0;font-size:19px;font-weight:600;letter-spacing:.4px}
+  .brand .sub{color:var(--muted);font-size:12px;font-family:var(--mono)}
+  .switch{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .switch button{
+    background:transparent;border:0;color:var(--muted);padding:8px 14px;font-size:13px;
+    cursor:pointer;font-weight:600;transition:background .15s,color .15s;
+  }
+  .switch button.active{background:var(--accent-dim);color:#fff}
+  main{padding:22px;max-width:1180px;margin:0 auto}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .card.wide{grid-column:1/-1}
+  .card h2{
+    margin:0;font-size:14px;font-weight:600;letter-spacing:.10em;text-transform:uppercase;
+    color:var(--accent);display:flex;align-items:center;gap:8px;
+  }
+  .card h2 .tag{
+    font-size:10px;letter-spacing:.04em;text-transform:none;color:var(--muted);
+    border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-family:var(--mono);
+  }
+  .hint{color:var(--muted);font-size:12.5px;margin:-4px 0 0}
+
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .fields.one{grid-template-columns:1fr}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field label{font-size:12px;color:var(--muted);font-weight:500;display:flex;align-items:baseline;gap:4px}
+  .field label .u{font-family:var(--mono);color:var(--accent);font-size:11px}
+  .field label .spacer{flex:1}
+  input,select{
+    width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+    padding:9px 10px;color:var(--text);font-size:15px;font-family:var(--mono);
+    transition:border-color .15s,box-shadow .15s;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(76,194,255,.14)}
+  input:invalid{border-color:var(--bad)}
+  select{font-family:inherit;font-size:14px}
+
+  .btns{display:flex;gap:8px;margin-top:2px}
+  button.action{
+    flex:1;background:var(--accent-dim);color:#fff;border:0;border-radius:9px;
+    padding:10px 14px;font-size:14px;font-weight:600;cursor:pointer;transition:filter .15s;
+  }
+  button.action:hover{filter:brightness(1.25)}
+  button.ghost{
+    background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:9px;
+    padding:10px 14px;font-size:14px;cursor:pointer;
+  }
+  button.ghost:hover{color:var(--text);border-color:var(--accent)}
+
+  .out{border-top:1px solid var(--line);padding-top:12px;display:none}
+  .out.show{display:block;animation:fade .22s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;font-size:14px}
+  .row + .row{border-top:1px solid rgba(36,49,65,.55)}
+  .row .k{color:var(--muted)}
+  .row .v{font-family:var(--mono);font-weight:600}
+  .row.key .v{font-size:17px;color:var(--good)}
+  .row.warn .v{color:var(--warn)}
+  .row.bad .v{color:var(--bad)}
+  .err{color:var(--bad);font-size:13px;margin:0}
+
+  canvas{width:100%;height:auto;display:block;border-radius:10px;background:#0d141c;border:1px solid var(--line)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+  .legend i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+
+  details{border-top:1px solid var(--line);padding-top:10px}
+  details summary{cursor:pointer;color:var(--muted);font-size:12.5px;user-select:none}
+  details summary:hover{color:var(--accent)}
+  .f{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:8px;line-height:1.7;white-space:pre-wrap}
+
+  /* ---------- Analoger Rechenschieber ---------- */
+  .dial-wrap{display:grid;grid-template-columns:minmax(300px,470px) 1fr;gap:20px;align-items:start}
+  @media (max-width:760px){.dial-wrap{grid-template-columns:1fr}}
+  .dial-stage{position:relative;touch-action:none;user-select:none;cursor:grab}
+  .dial-stage.dragging{cursor:grabbing}
+  .dial-stage canvas{width:100%;height:auto;display:block;border-radius:50%;
+    box-shadow:0 10px 40px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.06)}
+  .dial-side{display:flex;flex-direction:column;gap:12px}
+  .readout{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .ro{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .ro .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  .ro .num{font-family:var(--mono);font-size:22px;font-weight:600;margin-top:2px}
+  .ro.a .num{color:var(--accent)}
+  .ro.b .num{color:var(--good)}
+  .ro .unit{font-size:12px;color:var(--muted);font-family:var(--mono)}
+  .table{width:100%;border-collapse:collapse;font-size:13px;font-family:var(--mono)}
+  .table th{text-align:left;color:var(--muted);font-weight:500;font-size:11px;
+    text-transform:uppercase;letter-spacing:.07em;padding:5px 6px;border-bottom:1px solid var(--line)}
+  .table td{padding:5px 6px;border-bottom:1px solid rgba(36,49,65,.5)}
+  .table tr.hit td{color:var(--good);font-weight:600}
+  .dial-hint{font-size:12px;color:var(--muted);margin:0;line-height:1.5}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{background:transparent;border:1px solid var(--line);color:var(--muted);
+    border-radius:20px;padding:5px 11px;font-size:12px;cursor:pointer;font-family:var(--mono)}
+  .chip:hover{border-color:var(--accent);color:var(--accent)}
+  .chip.on{background:var(--accent-dim);border-color:var(--accent-dim);color:#fff}
+  footer{max-width:1180px;margin:0 auto;padding:8px 22px 40px;color:var(--muted);font-size:12px}
+  @media (max-width:520px){.fields{grid-template-columns:1fr}main{padding:14px}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>✈️ E6B Flight Computer</h1>
-        
-        <div class="unit-toggle">
-            <button id="metric-btn" class="active" onclick="toggleUnits('metric')">Metrisch</button>
-            <button id="imperial-btn" onclick="toggleUnits('imperial')">Imperial</button>
-        </div>
-        
-        <div class="calculator-grid">
-            <!-- Winddreieck Berechnung -->
-            <div class="calc-section">
-                <h3>🌪️ Winddreieck Navigation</h3>
-                <div class="input-group">
-                    <label for="true-course">Rechtweisender Kurs (°):</label>
-                    <input type="number" id="true-course" placeholder="z.B. 090">
-                </div>
-                <div class="input-group">
-                    <label for="true-airspeed">Wahre Eigengeschwindigkeit (<span class="speed-unit">km/h</span>):</label>
-                    <input type="number" id="true-airspeed" placeholder="z.B. 200">
-                </div>
-                <div class="input-group">
-                    <label for="wind-direction">Windrichtung (°):</label>
-                    <input type="number" id="wind-direction" placeholder="z.B. 270">
-                </div>
-                <div class="input-group">
-                    <label for="wind-speed">Windgeschwindigkeit (<span class="speed-unit">km/h</span>):</label>
-                    <input type="number" id="wind-speed" placeholder="z.B. 30">
-                </div>
-                <button class="calculate-btn" onclick="calculateWindTriangle()">Berechnen</button>
-                <div id="wind-result" class="result"></div>
-                <div class="wind-triangle">
-                    <canvas id="wind-canvas" class="triangle-canvas" width="300" height="250"></canvas>
-                </div>
-            </div>
-            
-            <!-- Treibstoff Berechnung -->
-            <div class="calc-section">
-                <h3>⛽ Treibstoffverbrauch</h3>
-                <div class="input-group">
-                    <label for="fuel-flow">Treibstoffverbrauch (<span class="fuel-unit">L/h</span>):</label>
-                    <input type="number" id="fuel-flow" placeholder="z.B. 35">
-                </div>
-                <div class="input-group">
-                    <label for="flight-time-hours">Flugzeit (Stunden):</label>
-                    <input type="number" id="flight-time-hours" step="0.1" placeholder="z.B. 2.5">
-                </div>
-                <div class="input-group">
-                    <label for="fuel-reserve">Reserve (%):</label>
-                    <input type="number" id="fuel-reserve" value="10" placeholder="z.B. 10">
-                </div>
-                <button class="calculate-btn" onclick="calculateFuel()">Berechnen</button>
-                <div id="fuel-result" class="result"></div>
-            </div>
-            
-            <!-- Zeit-Geschwindigkeit-Entfernung -->
-            <div class="calc-section">
-                <h3>📏 Zeit-Geschwindigkeit-Entfernung</h3>
-                <div class="input-group">
-                    <label for="calc-type">Berechnung:</label>
-                    <select id="calc-type">
-                        <option value="time">Zeit berechnen</option>
-                        <option value="speed">Geschwindigkeit berechnen</option>
-                        <option value="distance">Entfernung berechnen</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label for="distance">Entfernung (<span class="distance-unit">km</span>):</label>
-                    <input type="number" id="distance" placeholder="z.B. 450">
-                </div>
-                <div class="input-group">
-                    <label for="speed">Geschwindigkeit (<span class="speed-unit">km/h</span>):</label>
-                    <input type="number" id="speed" placeholder="z.B. 180">
-                </div>
-                <div class="input-group">
-                    <label for="time">Zeit (Stunden):</label>
-                    <input type="number" id="time" step="0.1" placeholder="z.B. 2.5">
-                </div>
-                <button class="calculate-btn" onclick="calculateTSD()">Berechnen</button>
-                <div id="tsd-result" class="result"></div>
-            </div>
-            
-            <!-- Luftdichte Berechnung -->
-            <div class="calc-section">
-                <h3>🌡️ Luftdichte & Leistung</h3>
-                <div class="input-group">
-                    <label for="pressure-altitude">Druckhöhe (<span class="altitude-unit">m</span>):</label>
-                    <input type="number" id="pressure-altitude" placeholder="z.B. 1500">
-                </div>
-                <div class="input-group">
-                    <label for="temperature">Temperatur (°C):</label>
-                    <input type="number" id="temperature" placeholder="z.B. 15">
-                </div>
-                <div class="input-group">
-                    <label for="indicated-airspeed">Angezeigte Geschwindigkeit (<span class="speed-unit">km/h</span>):</label>
-                    <input type="number" id="indicated-airspeed" placeholder="z.B. 200">
-                </div>
-                <button class="calculate-btn" onclick="calculateDensityAltitude()">Berechnen</button>
-                <div id="density-result" class="result"></div>
-            </div>
-        </div>
-        
-        <div class="info-panel">
-            <h3>📚 Formeln und Hinweise</h3>
-            <div class="formula">
-                <strong>Winddreieck:</strong><br>
-                • Abtrift = arcsin(Windgeschwindigkeit × sin(Winddifferenz) / Eigengeschwindigkeit)<br>
-                • Grundgeschwindigkeit = √(TAS² + WS² - 2×TAS×WS×cos(Winddifferenz))
-            </div>
-            <div class="formula">
-                <strong>Zeit-Geschwindigkeit-Entfernung:</strong><br>
-                • Zeit = Entfernung ÷ Geschwindigkeit<br>
-                • Geschwindigkeit = Entfernung ÷ Zeit<br>
-                • Entfernung = Geschwindigkeit × Zeit
-            </div>
-            <div class="formula">
-                <strong>Dichtehöhe:</strong><br>
-                • Dichtehöhe ≈ Druckhöhe + 120 × (Temperatur - Standardtemperatur)
-            </div>
-        </div>
-    </div>
 
-    <script>
-        let currentUnits = 'metric';
-        
-        function toggleUnits(units) {
-            currentUnits = units;
-            document.getElementById('metric-btn').classList.toggle('active', units === 'metric');
-            document.getElementById('imperial-btn').classList.toggle('active', units === 'imperial');
-            
-            // Update unit labels
-            const speedUnits = document.querySelectorAll('.speed-unit');
-            const distanceUnits = document.querySelectorAll('.distance-unit');
-            const altitudeUnits = document.querySelectorAll('.altitude-unit');
-            const fuelUnits = document.querySelectorAll('.fuel-unit');
-            
-            speedUnits.forEach(el => el.textContent = units === 'metric' ? 'km/h' : 'kts');
-            distanceUnits.forEach(el => el.textContent = units === 'metric' ? 'km' : 'nm');
-            altitudeUnits.forEach(el => el.textContent = units === 'metric' ? 'm' : 'ft');
-            fuelUnits.forEach(el => el.textContent = units === 'metric' ? 'L/h' : 'gal/h');
+<header>
+  <div class="brand">
+    <h1>E6B Flight Computer</h1>
+    <span class="sub" id="mode-label">METRISCH</span>
+  </div>
+  <div class="switch" role="group" aria-label="Einheitensystem">
+    <button id="btn-metric" class="active" data-mode="metric">Metrisch</button>
+    <button id="btn-imperial" data-mode="imperial">Imperial (kts/nm/ft)</button>
+  </div>
+</header>
+
+<main>
+<div class="grid">
+
+
+  <!-- Analoger Rechenschieber -->
+  <section class="card wide">
+    <h2>Analog-Rechenschieber <span class="tag">drehbar · animiert · echte Log-Skala</span></h2>
+    <p class="hint">Ziehen dreht die Scheibe (mit Schwung). Der rote Zeiger liest ab — er lässt sich ebenfalls ziehen.</p>
+    <div class="dial-wrap">
+      <div class="dial-stage" id="dial-stage">
+        <canvas id="dial" width="840" height="840" aria-label="Analoger E6B Rechenschieber"></canvas>
+      </div>
+      <div class="dial-side">
+        <div class="readout">
+          <div class="ro a"><div class="lbl">Außenskala <span id="ro-a-name">A</span></div>
+            <div class="num" id="ro-a">10,0</div><div class="unit" id="ro-a-unit">&nbsp;</div></div>
+          <div class="ro b"><div class="lbl">Innenskala <span id="ro-b-name">B</span></div>
+            <div class="num" id="ro-b">10,0</div><div class="unit" id="ro-b-unit">&nbsp;</div></div>
+        </div>
+
+        <div class="chips" id="dial-modes">
+          <button class="chip on" data-mode="tsd">Strecke · Zeit</button>
+          <button class="chip" data-mode="fuel">Kraftstoff · Zeit</button>
+          <button class="chip" data-mode="free">Multiplikation</button>
+        </div>
+
+        <div class="fields" id="dial-inputs">
+          <div class="field"><label id="dl-a-label">Geschwindigkeit <span class="u speed-u">km/h</span></label>
+            <input type="number" id="dl-a" step="1" value="180"></div>
+          <div class="field" id="dl-b-wrap" style="display:none"><label>Zweiter Faktor</label>
+            <input type="number" id="dl-b" step="0.1" value="4"></div>
+        </div>
+
+        <div class="btns">
+          <button class="action" id="dl-set">Scheibe drehen</button>
+          <button class="ghost" id="dl-reset">Nullstellung</button>
+        </div>
+
+        <table class="table" id="dl-table">
+          <thead><tr><th id="th-inner">Zeit</th><th id="th-outer">Strecke</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="dial-hint" id="dl-hint"></p>
+        <details><summary>Wie das funktioniert</summary>
+          <div class="f">Eine Umdrehung = eine Dekade (10 → 100), Winkel = 360° · log₁₀(v/10).
+Die Scheibe wird so gedreht, dass der Bezugswert der Innenskala (60) unter dem
+gewünschten Außenwert liegt. Dann gilt an jeder Strahllinie: außen = innen · a / b.
+
+Beispiel: 60 unter 180 km/h → bei 90 min auf der Innenskala stehen 270 km außen.
+Das ist genau die Bedienung des mechanischen E6B, nur ohne Lupe.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+  <!-- Winddreieck -->
+  <section class="card wide">
+    <h2>Winddreieck <span class="tag">Kurs · Abtrift · Grundgeschwindigkeit</span></h2>
+    <p class="hint">Wahre Werte (True Course). Windrichtung als Richtung, <em>aus</em> der der Wind weht.</p>
+    <div class="fields">
+      <div class="field">
+        <label>Sollkurs (TC) <span class="u">°</span></label>
+        <input type="number" id="wt-tc" min="0" max="360" step="1" placeholder="090">
+      </div>
+      <div class="field">
+        <label>Wahre Eigengeschw. (TAS) <span class="u speed-u">km/h</span></label>
+        <input type="number" id="wt-tas" min="0" step="1" placeholder="200">
+      </div>
+      <div class="field">
+        <label>Windrichtung (aus) <span class="u">°</span></label>
+        <input type="number" id="wt-wd" min="0" max="360" step="1" placeholder="270">
+      </div>
+      <div class="field">
+        <label>Windgeschwindigkeit <span class="u speed-u">km/h</span></label>
+        <input type="number" id="wt-ws" min="0" step="1" placeholder="30">
+      </div>
+    </div>
+    <div class="btns">
+      <button class="action" id="wt-go">Berechnen</button>
+      <button class="ghost" id="wt-clear">Zurücksetzen</button>
+    </div>
+    <p class="err" id="wt-err" hidden></p>
+    <div class="out" id="wt-out">
+      <div class="row key"><span class="k">Steuerkurs (TH)</span><span class="v" id="wt-th">–</span></div>
+      <div class="row"><span class="k">Abtrift (WCA)</span><span class="v" id="wt-wca">–</span></div>
+      <div class="row key"><span class="k">Grundgeschwindigkeit (GS)</span><span class="v" id="wt-gs">–</span></div>
+      <div class="row"><span class="k">Flugrichtung über Grund</span><span class="v" id="wt-trk">–</span></div>
+      <div class="row"><span class="k">Windkomponente voraus</span><span class="v" id="wt-hw">–</span></div>
+      <div class="row"><span class="k">Seitenwind</span><span class="v" id="wt-xw">–</span></div>
+      <div class="row"><span class="k">Zeit über 100 <span class="dist-u">km</span></span><span class="v" id="wt-t100">–</span></div>
+      <div class="legend" style="margin-top:12px">
+        <span><i style="background:var(--wind)"></i>Wind</span>
+        <span><i style="background:var(--good)"></i>Eigengeschwindigkeit (TH)</span>
+        <span><i style="background:var(--accent)"></i>Weg über Grund (TC)</span>
+      </div>
+      <canvas id="wt-canvas" width="840" height="300" style="margin-top:10px"></canvas>
+    </div>
+    <details>
+      <summary>Formeln</summary>
+      <div class="f">WCA   = asin( (Vw · sin(Δ)) / TAS )      Δ = Windrichtung<sub>aus</sub> + 180° − Sollkurs
+TH    = TC − WCA                          (negatives WCA = links korrigieren)
+GS    = √( TAS² + Vw² − 2·TAS·Vw·cos(Δ) ) — vektoriell: TAS·cos(WCA) + Vw·cos(Δ)
+Gültig nur wenn |Vw · sin(Δ)| ≤ TAS (sonst kein ausfliegbarer Kurs)</div>
+    </details>
+  </section>
+
+  <!-- Reiseflug / Kraftstoff -->
+  <section class="card">
+    <h2>Kraftstoff &amp; Reichweite</h2>
+    <p class="hint">Verbrauch aus Reiseflug. Reserve als Zeit oder Prozent.</p>
+    <div class="fields">
+      <div class="field">
+        <label>Verbrauch <span class="u">L/h</span></label>
+        <input type="number" id="fu-flow" min="0" step="0.1" placeholder="32">
+      </div>
+      <div class="field">
+        <label>Geschwindigkeit <span class="u speed-u">km/h</span></label>
+        <input type="number" id="fu-speed" min="0" step="1" placeholder="180">
+      </div>
+      <div class="field">
+        <label>Strecke <span class="u dist-u">km</span></label>
+        <input type="number" id="fu-dist" min="0" step="1" placeholder="450">
+      </div>
+      <div class="field">
+        <label>Reserve <span class="u">min</span></label>
+        <input type="number" id="fu-res" min="0" step="5" value="45">
+      </div>
+    </div>
+    <div class="fields one">
+      <div class="field">
+        <label>Vorhandener Kraftstoff (optional) <span class="u">L</span></label>
+        <input type="number" id="fu-onboard" min="0" step="1" placeholder="—">
+      </div>
+    </div>
+    <div class="btns"><button class="action" id="fu-go">Berechnen</button></div>
+    <p class="err" id="fu-err" hidden></p>
+    <div class="out" id="fu-out">
+      <div class="row"><span class="k">Flugzeit</span><span class="v" id="fu-time">–</span></div>
+      <div class="row"><span class="k">Verbrauch Strecke</span><span class="v" id="fu-trip">–</span></div>
+      <div class="row"><span class="k">Reserve</span><span class="v" id="fu-resv">–</span></div>
+      <div class="row key"><span class="k">Gesamt benötigt</span><span class="v" id="fu-total">–</span></div>
+      <div class="row"><span class="k">Spezifische Reichweite</span><span class="v" id="fu-range">–</span></div>
+      <div class="row" id="fu-check-row" hidden><span class="k">Restmenge</span><span class="v" id="fu-rest">–</span></div>
+    </div>
+  </section>
+
+  <!-- TSD -->
+  <section class="card">
+    <h2>Zeit · Geschwindigkeit · Strecke</h2>
+    <div class="fields one">
+      <div class="field">
+        <label>Gesucht</label>
+        <select id="tsd-mode">
+          <option value="time">Zeit</option>
+          <option value="speed">Geschwindigkeit</option>
+          <option value="dist">Strecke</option>
+        </select>
+      </div>
+    </div>
+    <div class="fields">
+      <div class="field" id="tsd-f-dist">
+        <label>Strecke <span class="u dist-u">km</span></label>
+        <input type="number" id="tsd-dist" min="0" step="1" placeholder="450">
+      </div>
+      <div class="field" id="tsd-f-speed">
+        <label>Geschwindigkeit <span class="u speed-u">km/h</span></label>
+        <input type="number" id="tsd-speed" min="0" step="1" placeholder="180">
+      </div>
+      <div class="field" id="tsd-f-time">
+        <label>Zeit <span class="u">min</span></label>
+        <input type="number" id="tsd-time" min="0" step="1" placeholder="—">
+      </div>
+    </div>
+    <div class="btns"><button class="action" id="tsd-go">Berechnen</button></div>
+    <p class="err" id="tsd-err" hidden></p>
+    <div class="out" id="tsd-out">
+      <div class="row key"><span class="k">Ergebnis</span><span class="v" id="tsd-res">–</span></div>
+      <div class="row"><span class="k">Zeit h:mm</span><span class="v" id="tsd-hmm">–</span></div>
+      <div class="row"><span class="k">Ankunft nach Abflug</span><span class="v" id="tsd-eta">–</span></div>
+    </div>
+    <details><summary>Formeln</summary>
+      <div class="f">t = s / v      v = s / t      s = v · t
+Einheiten konsistent halten: min ↔ km/h → t[h] · 60</div>
+    </details>
+  </section>
+
+  <!-- Dichtehöhe / IAS-TAS -->
+  <section class="card">
+    <h2>Dichtehöhe &amp; IAS → TAS</h2>
+    <p class="hint">ISA-Abweichung nach Standardatmosphäre, nicht nach Faustformel.</p>
+    <div class="fields">
+      <div class="field">
+        <label>Druckhöhe (PA) <span class="u alt-u">m</span></label>
+        <input type="number" id="da-pa" step="10" placeholder="1500">
+      </div>
+      <div class="field">
+        <label>Außentemperatur (OAT) <span class="u">°C</span></label>
+        <input type="number" id="da-oat" step="1" placeholder="24">
+      </div>
+      <div class="field">
+        <label>Angezeigte Geschw. (IAS) <span class="u speed-u">km/h</span></label>
+        <input type="number" id="da-ias" min="0" step="1" placeholder="200">
+      </div>
+      <div class="field">
+        <label>QNH (optional) <span class="u">hPa</span></label>
+        <input type="number" id="da-qnh" step="1" placeholder="1013">
+      </div>
+    </div>
+    <div class="btns"><button class="action" id="da-go">Berechnen</button></div>
+    <p class="err" id="da-err" hidden></p>
+    <div class="out" id="da-out">
+      <div class="row"><span class="k">ISA-Temperatur</span><span class="v" id="da-isa">–</span></div>
+      <div class="row"><span class="k">ISA-Abweichung</span><span class="v" id="da-dev">–</span></div>
+      <div class="row key"><span class="k">Dichtehöhe (DA)</span><span class="v" id="da-da">–</span></div>
+      <div class="row"><span class="k">Dichte ρ</span><span class="v" id="da-rho">–</span></div>
+      <div class="row"><span class="k">TAS aus IAS</span><span class="v" id="da-tas">–</span></div>
+      <div class="row"><span class="k">Leistungsverlust (Startstrecke)</span><span class="v" id="da-perf">–</span></div>
+      <div class="row" id="da-qnh-row" hidden><span class="k">Druckhöhe aus QNH</span><span class="v" id="da-paq">–</span></div>
+    </div>
+    <details><summary>Formeln</summary>
+      <div class="f">ISA-T   = 15 °C − 0,0065 K/m · PA
+DA      = PA + 118,8 m · (OAT − ISA-T)
+ρ       = ρ₀ · (1 − 2,2558·10⁻⁵ · DA)^4,2559
+TAS     ≈ IAS · √(ρ₀/ρ)      (IAS = CAS genähert)
+Hinweis: Faustformel 120 ft pro °C ≈ 36,6 m pro °C — für metrisch ungeeignet.</div>
+    </details>
+  </section>
+
+</div>
+</main>
+
+<footer>Rechner für Flugplanung. Ergebnisse sind Näherungen — für die tatsächliche Flugdurchführung immer AFM/POH und offizielle Unterlagen verwenden.</footer>
+
+<script>
+(() => {
+  'use strict';
+
+  // ---------- Einheiten ----------
+  const UNITS = {
+    metric:   { speed:'km/h', dist:'km', alt:'m',  fuel:'L',   lap: 1,       conv: {},   sd:'METRISCH' },
+    imperial: { speed:'kts',  dist:'nm', alt:'ft', fuel:'US gal', lap: 1,    conv: {SPEED:1/1.852, DIST:1/1.852, ALT:1/0.3048, FUEL:1/3.78541}, sd:'IMPERIAL' }
+  };
+  // Umrechnung intern immer metrisch
+  const K = { SPEED:1.852, DIST:1.852, ALT:0.3048, FUEL:3.78541 }; // imperial → metrisch
+  let mode = 'metric';
+  const $ = id => document.getElementById(id);
+  const isImp = () => mode === 'imperial';
+  // Eingabewert → intern metrisch
+  const inp = (el, kind) => {
+    const v = parseFloat(el.value);
+    if (!isFinite(v)) return NaN;
+    return isImp() ? v * K[kind] : v;
+  };
+  // intern metrisch → Anzeige
+  const out = (v, kind, dec=0) => {
+    if (!isFinite(v)) return '–';
+    const x = isImp() ? v / K[kind] : v;
+    return x.toFixed(dec);
+  };
+  const u = kind => isImp() ? UNITS.imperial[kind.toLowerCase()] : UNITS.metric[kind.toLowerCase()];
+
+  function setMode(m){
+    mode = m;
+    $('btn-metric').classList.toggle('active', m==='metric');
+    $('btn-imperial').classList.toggle('active', m==='imperial');
+    $('mode-label').textContent = UNITS[m].sd;
+    document.querySelectorAll('.speed-u').forEach(e => e.textContent = UNITS[m].speed);
+    document.querySelectorAll('.dist-u').forEach(e => e.textContent = UNITS[m].dist);
+    document.querySelectorAll('.alt-u').forEach(e => e.textContent = UNITS[m].alt);
+    document.querySelectorAll('.fuel-u').forEach(e => e.textContent = UNITS[m].fuel);
+    document.querySelectorAll('.out.show').forEach(o => o.classList.remove('show'));
+    $('wt-canvas').getContext('2d').clearRect(0,0,840,300);
+    drawPlaceholder();
+  }
+  $('btn-metric').onclick = () => setMode('metric');
+  $('btn-imperial').onclick = () => setMode('imperial');
+
+  const deg = d => ((d % 360) + 360) % 360;
+  const rad = d => d * Math.PI / 180;
+  const err = (el, msg) => { el.textContent = msg; el.hidden = !msg; };
+  const fmtTime = h => {
+    if (!isFinite(h)) return '–';
+    const m = Math.round(h * 60);
+    return `${Math.floor(m/60)}:${String(m%60).padStart(2,'0')} h`;
+  };
+  const fmtDur = h => {
+    if (!isFinite(h)) return '–';
+    const m = Math.round(h*60);
+    return `${m} min (${Math.floor(m/60)}:${String(m%60).padStart(2,'0')})`;
+  };
+
+  // ---------- Winddreieck ----------
+  function windTriangle(){
+    const e = $('wt-err');
+    err(e,'');
+    const tc = parseFloat($('wt-tc').value);
+    const tas = inp($('wt-tas'),'SPEED');
+    const wd = parseFloat($('wt-wd').value);
+    const ws = inp($('wt-ws'),'SPEED');
+    if (![tc,tas,wd,ws].every(isFinite)) return err(e,'Bitte alle vier Werte eingeben.');
+    if (tas <= 0) return err(e,'Eigengeschwindigkeit muss > 0 sein.');
+    if (tc < 0 || tc > 360 || wd < 0 || wd > 360) return err(e,'Kurse zwischen 0 und 360° angeben.');
+
+    // Wind wirkt in Richtung "aus" + 180
+    const windFrom = deg(wd);
+    const windTo   = deg(windFrom + 180);
+    const delta    = deg(windTo - tc);            // Winkel zwischen Sollkurs und Windvektor
+    const dRad     = rad(delta);
+
+    const sinW = -ws * Math.sin(dRad) / tas;      // Vektorgleichung: TAS·sin(TH−TC) + Vw·sin(Δ) = 0
+    if (Math.abs(sinW) > 1) return err(e,'Wind zu stark für diesen Kurs: Seitenwindkomponente > TAS. Kurs nicht fliegbar.');
+
+    const wca = Math.asin(sinW) * 180 / Math.PI;  // + = rechts, − = links
+    const th  = deg(tc + wca);                    // Steuerkurs = Sollkurs + Korrektur
+    // Grundgeschwindigkeit vektoriell (Betrag der Summe TAS+Wind)
+    const gs  = tas * Math.cos(rad(wca)) + ws * Math.cos(dRad);
+    if (gs <= 0) return err(e,'Grundgeschwindigkeit ≤ 0 — Rückwärtsflug, Kurs unbrauchbar.');
+
+    const head = ws * Math.cos(dRad);             // + = Rückenwind, − = Gegenwind
+    const cross = Math.abs(ws * Math.sin(dRad));
+
+    $('wt-th').textContent  = th.toFixed(0) + '°';
+    $('wt-wca').textContent = (wca >= 0 ? 'R ' : 'L ') + Math.abs(wca).toFixed(0) + '°';
+    $('wt-gs').textContent  = out(gs,'SPEED',0) + ' ' + u('SPEED');
+    $('wt-trk').textContent = tc.toFixed(0) + '° (Soll)';
+    $('wt-hw').textContent  = (head >= 0 ? '+' : '−') + ' ' + out(Math.abs(head),'SPEED',0) + ' ' + u('SPEED') + (head>=0?' (Rücken)':' (Gegen)');
+    $('wt-xw').textContent  = out(cross,'SPEED',0) + ' ' + u('SPEED');
+    $('wt-t100').textContent = fmtDur(100 / gs);
+    $('wt-out').classList.add('show');
+    drawTri(tc,tas,th,gs,ws,windFrom);
+  }
+
+  function drawTri(tc,tas,th,gs,ws,windFrom){
+    const c = $('wt-canvas'), ctx = c.getContext('2d');
+    const W=c.width, H=c.height;
+    ctx.clearRect(0,0,W,H);
+    // Raster
+    ctx.strokeStyle='rgba(255,255,255,.045)'; ctx.lineWidth=1;
+    for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+    // Maßstab: alle drei Vektoren müssen ins Bild passen
+    const windTo = deg(windFrom+180);
+    // Maßstab: die längste denkbare Kante (TAS+WS) muss in 80% der Fläche passen
+    const maxSpan = Math.max(tas + ws, gs, tas);
+    const scale = Math.min(W*0.80, H*0.80) / (maxSpan || 1);
+    // Startpunkt: links, damit TAS und GS nach rechts laufen
+    const A = { x: W*0.12, y: H*0.52 };
+
+    const vec = (len, hdg) => ({ x: len*scale*Math.sin(rad(hdg)), y: -len*scale*Math.cos(rad(hdg)) });
+    const vT = vec(tas, th);                    // Steuerkurs (TAS)
+    const vW = vec(ws, windTo);                 // Wind, wohin er weht
+    const B  = { x: A.x + vT.x, y: A.y + vT.y };
+    const C  = { x: A.x + gs*scale*Math.sin(rad(tc)), y: A.y - gs*scale*Math.cos(rad(tc)) };
+
+    const arrow = (p1,p2,color,width,label,labelOffset=0) => {
+      ctx.save();
+      ctx.strokeStyle=color; ctx.lineWidth=width; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+      const ang = Math.atan2(p2.y-p1.y, p2.x-p1.x);
+      const hl = 12;
+      ctx.fillStyle=color;
+      ctx.beginPath();
+      ctx.moveTo(p2.x,p2.y);
+      ctx.lineTo(p2.x-hl*Math.cos(ang-0.42), p2.y-hl*Math.sin(ang-0.42));
+      ctx.lineTo(p2.x-hl*Math.cos(ang+0.42), p2.y-hl*Math.sin(ang+0.42));
+      ctx.closePath(); ctx.fill();
+      if(label){
+        const mx=(p1.x+p2.x)/2, my=(p1.y+p2.y)/2;
+        // Label senkrecht zur Linie versetzen, damit es nicht auf der Linie liegt
+        const nx=-Math.sin(ang), ny=Math.cos(ang);
+        const off = labelOffset || 14;
+        ctx.font='600 12px ui-monospace,monospace'; ctx.fillStyle=color;
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(label, mx + nx*off, my + ny*off);
+      }
+      ctx.restore();
+    };
+
+    // Vektordreieck: A→B (TAS/TH) + B→C (Wind) = A→C (Weg über Grund)
+    arrow(A, C, '#4cc2ff', 2.5, 'GS / TC', -16);
+    arrow(A, B, '#3ddc97', 2.5, 'TAS / TH', 16);
+    if (ws > 0.05) arrow(B, C, '#ff9f43', 2.5, 'WIND ' + windFrom.toFixed(0) + '°', -16);
+
+    // Eckpunkte
+    [[A,'#e6edf5'],[B,'#3ddc97'],[C,'#4cc2ff']].forEach(([p2,col])=>{
+      ctx.fillStyle=col; ctx.beginPath(); ctx.arc(p2.x,p2.y,4,0,Math.PI*2); ctx.fill();
+    });
+
+    // WCA-Bogen an A
+    const rr = Math.min(52, Math.max(28, Math.hypot(vT.x,vT.y)*0.5));
+    const a1 = rad(tc)-Math.PI/2, a2 = rad(th)-Math.PI/2;
+    ctx.strokeStyle='rgba(255,204,77,.8)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(A.x,A.y,rr,Math.min(a1,a2),Math.max(a1,a2)); ctx.stroke();
+
+    // Infozeile unten links
+    ctx.font='12px ui-monospace,monospace'; ctx.fillStyle='#8b9bb0';
+    ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+    ctx.fillText(`TC ${tc.toFixed(0)}°   TH ${th.toFixed(0)}°   WCA ${wcaSign(th-tc).toFixed(0)}°`, 14, H-30);
+    ctx.fillText(`GS ${gs.toFixed(0)}   TAS ${tas.toFixed(0)}   WS ${ws.toFixed(0)} (${isImp()?'kts':'km/h'})`, 14, H-12);
+  }
+
+  const wcaSign = d => { let x = ((d+540)%360)-180; return x; };
+
+  function drawPlaceholder(){
+    const c=$('wt-canvas'), ctx=c.getContext('2d');
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.fillStyle='#41505f'; ctx.font='13px ui-monospace,monospace'; ctx.textAlign='center';
+    ctx.fillText('Winddreieck erscheint nach der Berechnung', c.width/2, c.height/2);
+  }
+
+  // ---------- Kraftstoff ----------
+  function fuelCalc(){
+    const e=$('fu-err'); err(e,'');
+    const flow = inp($('fu-flow'),'FUEL');            // L/h intern
+    const spd  = inp($('fu-speed'),'SPEED');
+    const dist = inp($('fu-dist'),'DIST');
+    const resMin = parseFloat($('fu-res').value) || 0;
+    const onboard = inp($('fu-onboard'),'FUEL');
+    if (![flow,spd,dist].every(isFinite) || flow<=0 || spd<=0 || dist<=0)
+      return err(e,'Verbrauch, Geschwindigkeit und Strecke müssen > 0 sein.');
+
+    const t = dist / spd;                       // h
+    const trip = flow * t;
+    const resv = flow * (resMin/60);
+    const total = trip + resv;
+    const range = spd / flow;                   // km pro L
+
+    $('fu-time').textContent  = fmtDur(t);
+    $('fu-trip').textContent  = out(trip,'FUEL',1) + ' ' + u('FUEL');
+    $('fu-resv').textContent  = out(resv,'FUEL',1) + ' ' + u('FUEL') + ` (${resMin} min)`;
+    $('fu-total').textContent = out(total,'FUEL',1) + ' ' + u('FUEL');
+    $('fu-range').textContent = out(range,'DIST',2) + ' ' + u('DIST') + '/L';
+
+    const row = $('fu-check-row');
+    if (isFinite(onboard)){
+      row.hidden=false;
+      const rest = onboard - total;
+      $('fu-rest').textContent = out(rest,'FUEL',1) + ' ' + u('FUEL');
+      row.className = 'row ' + (rest < 0 ? 'bad' : 'key');
+    } else row.hidden = true;
+
+    $('fu-out').classList.add('show');
+  }
+
+  // ---------- TSD ----------
+  function tsdSync(){
+    const m = $('tsd-mode').value;
+    $('tsd-f-dist').style.display  = m==='dist'  ? 'none' : '';
+    $('tsd-f-speed').style.display = m==='speed' ? 'none' : '';
+    $('tsd-f-time').style.display  = m==='time'  ? 'none' : '';
+    $('tsd-out').classList.remove('show');
+    err($('tsd-err'),'');
+  }
+  $('tsd-mode').onchange = tsdSync;
+
+  function tsdCalc(){
+    const e=$('tsd-err'); err(e,'');
+    const m = $('tsd-mode').value;
+    const d = inp($('tsd-dist'),'DIST');
+    const v = inp($('tsd-speed'),'SPEED');
+    const tMin = parseFloat($('tsd-time').value);
+
+    if (m==='time'){
+      if (![d,v].every(isFinite) || d<=0 || v<=0) return err(e,'Strecke und Geschwindigkeit > 0 nötig.');
+      const h = d/v;
+      $('tsd-res').textContent = fmtDur(h);
+      $('tsd-hmm').textContent = fmtTime(h);
+      $('tsd-eta').textContent = `+ ${h.toFixed(2)} h`;
+    } else if (m==='speed'){
+      if (![d,tMin].every(isFinite) || d<=0 || tMin<=0) return err(e,'Strecke > 0 und Zeit > 0 min nötig.');
+      const vv = d / (tMin/60);
+      $('tsd-res').textContent = out(vv,'SPEED',1) + ' ' + u('SPEED');
+      $('tsd-hmm').textContent = fmtTime(tMin/60);
+      $('tsd-eta').textContent = `+ ${(tMin/60).toFixed(2)} h`;
+    } else {
+      if (![v,tMin].every(isFinite) || v<=0 || tMin<=0) return err(e,'Geschwindigkeit > 0 und Zeit > 0 min nötig.');
+      const dd = v * (tMin/60);
+      $('tsd-res').textContent = out(dd,'DIST',1) + ' ' + u('DIST');
+      $('tsd-hmm').textContent = fmtTime(tMin/60);
+      $('tsd-eta').textContent = `+ ${(tMin/60).toFixed(2)} h`;
+    }
+    $('tsd-out').classList.add('show');
+  }
+
+  // ---------- Atmosphäre ----------
+  const RHO0 = 1.225;     // kg/m³ ISA MSL
+  const ISA_GRAD = 0.0065; // K/m
+  const ISA_T0 = 15;
+  const G_FT = 0.3048;
+  const P0 = 1013.25;
+
+  function atmo(){
+    const e=$('da-err'); err(e,'');
+    let pa = inp($('da-pa'),'ALT');
+    const oat = parseFloat($('da-oat').value);
+    const ias = inp($('da-ias'),'SPEED');
+    const qnh = parseFloat($('da-qnh').value);
+
+    let pq = NaN;
+    if (isFinite(qnh)){
+      // Druckhöhe aus QNH: 1 hPa ≈ 8,3 m (ISA, tiefe Höhen)
+      pq = pa + (P0 - qnh) * 8.3;
+    }
+    if (!isFinite(pa)){
+      if (isFinite(pq)) pa = pq;
+      else return err(e,'Bitte Druckhöhe (oder QNH) eingeben.');
+    }
+    if (!isFinite(oat)) return err(e,'Bitte Außentemperatur eingeben.');
+
+    const isaT = ISA_T0 - ISA_GRAD * pa;
+    const dev  = oat - isaT;
+    const da   = pa + 118.8 * dev;                  // m
+    const rho  = RHO0 * Math.pow(1 - 2.2558e-5 * da, 4.2559);
+
+    $('da-isa').textContent = isaT.toFixed(1) + ' °C';
+    $('da-dev').textContent = (dev>=0?'+':'−') + ' ' + Math.abs(dev).toFixed(1) + ' K';
+    $('da-da').textContent  = out(da,'ALT',0) + ' ' + u('ALT');
+    $('da-rho').textContent = rho.toFixed(4) + ' kg/m³';
+
+    if (isFinite(ias) && ias>0){
+      const tas = ias * Math.sqrt(RHO0/rho);
+      $('da-tas').textContent = out(tas,'SPEED',0) + ' ' + u('SPEED') + ` (+${((tas/ias-1)*100).toFixed(1)} %)`;
+    } else $('da-tas').textContent = '–';
+
+    // Dichtehöhe über Druckhöhe → Höhenverlust für Saugmotoren ~ 3 % je 300 m
+    const loss = (da - pa) / 300 * 3;
+    $('da-perf').textContent = (loss>=0?'−':'+') + ' ' + Math.abs(loss).toFixed(1) + ' %';
+    $('da-perf').parentElement.className = 'row ' + (Math.abs(loss) > 15 ? 'bad' : Math.abs(loss)>8 ? 'warn' : '');
+
+    const qRow = $('da-qnh-row');
+    if (isFinite(pq)){ qRow.hidden=false; $('da-paq').textContent = out(pq,'ALT',0)+' '+u('ALT'); }
+    else qRow.hidden = true;
+
+    $('da-out').classList.add('show');
+  }
+
+
+  // ================= Analoger Rechenschieber =================
+  const Dial = (() => {
+    const cv = $('dial'), ctx = cv.getContext('2d');
+    const S = cv.width;          // 840
+    const C = S/2;               // Mittelpunkt
+    const R = S*0.47;            // Außenradius der Skalenfläche
+
+    // Winkel: 0° = oben, im Uhrzeigersinn
+    const toCanvas = deg => (deg - 90) * Math.PI/180;
+    // Skalenwert → Winkel (eine Dekade = 360°)
+    const angOf = v => 360 * Math.log10(v/10);
+    const valAt = a => 10 * Math.pow(10, ((a % 360) + 360) % 360 / 360);
+    // Mantisse in [10,100)
+    const mant = x => {
+      if (!(x > 0)) return 10;
+      const e = Math.floor(Math.log10(x));
+      return x / Math.pow(10, e) * 10;
+    };
+
+    const state = {
+      rot: 0, target: 0, vel: 0, dragging: false, dragMode: null,
+      pointer: 0, pointerTarget: 0, pointerVel: 0,
+      mode: 'tsd', a: 180, b: 60, raf: 0, last: 0
+    };
+
+    const LABELS_A = [10,12,15,20,25,30,40,50,60,70,80,90];
+    const TICKS = (() => {
+      const t = [];
+      for (let v = 10; v <= 20; v++) t.push({v});
+      for (let v = 22; v <= 40; v += 2) t.push({v});
+      for (let v = 45; v <= 100; v += 5) t.push({v});
+      return t;
+    })();
+    const isLabel = v => LABELS_A.includes(v);
+
+    function tickRing(radius, len, color, width, rot, labelRadius, labelColor) {
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineCap = 'butt';
+      TICKS.forEach(({v}) => {
+        const a = toCanvas(angOf(v) + rot);
+        const lab = isLabel(v);
+        const big = v % 10 === 0;
+        const l = lab ? len*2.0 : big ? len*1.3 : len*0.75;
+        ctx.beginPath();
+        ctx.moveTo(C + Math.cos(a)*radius, C + Math.sin(a)*radius);
+        ctx.lineTo(C + Math.cos(a)*(radius - l), C + Math.sin(a)*(radius - l));
+        ctx.stroke();
+        if (lab) {
+          ctx.save();
+          ctx.translate(C + Math.cos(a)*labelRadius, C + Math.sin(a)*labelRadius);
+          ctx.rotate(a + Math.PI/2);
+          ctx.fillStyle = labelColor;
+          ctx.font = `${big ? '600 30px' : '500 25px'} ui-monospace, menlo, monospace`;
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(String(v), 0, 0);
+          ctx.restore();
         }
-        
-        function toRadians(degrees) {
-            return degrees * Math.PI / 180;
+      });
+      ctx.restore();
+    }
+
+    function degreeRing() {
+      ctx.save();
+      ctx.translate(C, C); ctx.rotate(state.rot * Math.PI/180);
+      ctx.strokeStyle = 'rgba(154,171,191,.80)'; ctx.fillStyle = 'rgba(180,197,214,.95)';
+      for (let d = 0; d < 360; d += 5) {
+        const a = toCanvas(d);
+        const major = d % 30 === 0;
+        const l = major ? 13 : d % 10 === 0 ? 8 : 4;
+        ctx.lineWidth = major ? 1.6 : 1;
+        ctx.beginPath();
+        ctx.moveTo(C + Math.cos(a)*R, C + Math.sin(a)*R);
+        ctx.lineTo(C + Math.cos(a)*(R - l), C + Math.sin(a)*(R - l));
+        ctx.stroke();
+        if (major) {
+          ctx.save();
+          ctx.translate(Math.cos(a)*(R-30), Math.sin(a)*(R-30));
+          ctx.rotate(a + Math.PI/2);
+          ctx.font = '600 14px ui-monospace, menlo, monospace';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(String(d), 0, 0);
+          ctx.restore();
         }
-        
-        function toDegrees(radians) {
-            return radians * 180 / Math.PI;
+      }
+      ctx.restore();
+    }
+
+    function pointer() {
+      const a = toCanvas(state.pointer);
+      ctx.save();
+      ctx.strokeStyle = '#ff5252'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+      ctx.shadowColor = 'rgba(255,82,82,.55)'; ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.moveTo(C + Math.cos(a)*R*0.28, C + Math.sin(a)*R*0.28);
+      ctx.lineTo(C + Math.cos(a)*R*0.93, C + Math.sin(a)*R*0.93);
+      ctx.stroke();
+      // Griff
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = '#ff5252';
+      ctx.beginPath();
+      ctx.arc(C + Math.cos(a)*R*0.28, C + Math.sin(a)*R*0.28, 11, 0, Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(C + Math.cos(a)*R*0.28, C + Math.sin(a)*R*0.28, 11, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function draw() {
+      ctx.clearRect(0,0,S,S);
+
+      // Gehäuse
+      const g = ctx.createRadialGradient(C, C*0.75, S*0.05, C, C, S*0.5);
+      g.addColorStop(0, '#1c2530'); g.addColorStop(1, '#0d141c');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(C, C, S*0.492, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = 'rgba(76,194,255,.28)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(C, C, S*0.492, 0, Math.PI*2); ctx.stroke();
+
+      degreeRing();
+
+      // Trennring
+      ctx.strokeStyle = 'rgba(255,255,255,.10)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(C, C, R*0.90, 0, Math.PI*2); ctx.stroke();
+
+      // Außenskala (fest)
+      tickRing(R*0.88, 13, 'rgba(230,237,245,.95)', 1.5, 0, R*0.70, '#e6edf5');
+
+      // Innenscheibe
+      ctx.save();
+      const discR = R*0.60;
+      const gd = ctx.createRadialGradient(C, C, 8, C, C, discR*1.02);
+      gd.addColorStop(0, '#223040'); gd.addColorStop(1, '#16202b');
+      ctx.fillStyle = gd;
+      ctx.beginPath(); ctx.arc(C, C, discR*1.02, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = 'rgba(76,194,255,.45)'; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.arc(C, C, discR*1.02, 0, Math.PI*2); ctx.stroke();
+      // Mitnehmer-Markierung (10 der Innenskala)
+      ctx.restore();
+
+      tickRing(R*0.56, 11, 'rgba(61,220,151,.98)', 1.4, state.rot, R*0.415, '#6ff0bd');
+
+      // Index der Innenskala (das "1"/10-Zeichen)
+      ctx.save();
+      const ai = toCanvas(angOf(10) + state.rot);
+      ctx.strokeStyle = '#3ddc97'; ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(C + Math.cos(ai)*(R*0.60), C + Math.sin(ai)*(R*0.60));
+      ctx.lineTo(C + Math.cos(ai)*(R*0.66), C + Math.sin(ai)*(R*0.66));
+      ctx.stroke();
+      ctx.restore();
+
+      // Nabenkappe
+      ctx.save();
+      const gc = ctx.createRadialGradient(C-20, C-24, 4, C, C, R*0.24);
+      gc.addColorStop(0, '#2c3b4d'); gc.addColorStop(1, '#131c26');
+      ctx.fillStyle = gc;
+      ctx.beginPath(); ctx.arc(C, C, R*0.24, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,.10)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(C, C, R*0.24, 0, Math.PI*2); ctx.stroke();
+      ctx.fillStyle = 'rgba(230,237,245,.9)';
+      ctx.font = '600 22px ui-monospace, menlo, monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('E6B', C, C - 8);
+      ctx.font = '500 12px ui-monospace, menlo, monospace';
+      ctx.fillStyle = 'rgba(154,171,191,.85)';
+      ctx.fillText('M', C, C + 14);
+      ctx.restore();
+
+      // statische Skalenhinweise
+      ctx.save();
+      ctx.font = '600 15px ui-monospace, menlo, monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(230,237,245,.80)';
+      ctx.fillText('A', C, C + R*0.955);
+      ctx.fillStyle = 'rgba(111,240,189,.75)';
+      ctx.fillText('B', C, C - R*0.265);
+      ctx.restore();
+
+      pointer();
+    }
+
+    // ---------- Lesen ----------
+    const norm = d => ((d % 360) + 360) % 360;
+    function readAt() {
+      const aOut = valAt(norm(state.pointer));
+      const aIn  = valAt(norm(state.pointer - state.rot));
+      return { out: aOut, inn: aIn };
+    }
+
+    function updateReadout() {
+      const { out, inn } = readAt();
+      $('ro-a').textContent = out.toFixed(1);
+      $('ro-b').textContent = inn.toFixed(1);
+
+      const isTSD = state.mode === 'tsd' || state.mode === 'fuel';
+      const unitA = state.mode === 'fuel' ? u('FUEL') : (state.mode === 'tsd' ? u('DIST') : '');
+      $('ro-a-unit').textContent = isTSD ? `Skalenwert · Ergebnis in ${unitA}` : 'Skalenwert (Dezimalpunkt selbst setzen)';
+      $('ro-b-unit').textContent = isTSD ? 'Skalenwert · Zeit in min' : 'Skalenwert';
+
+      const rows = tableRows();
+      const tb = $('dl-table').querySelector('tbody');
+      tb.innerHTML = rows.map(r => {
+        const hit = Math.abs(shortest(norm(state.pointer) - norm(angOf(mant(r.x)) + state.rot))) < 3.5;
+        return `<tr class="${hit?'hit':''}"><td>${r.x}</td><td>${r.y}</td></tr>`;
+      }).join('');
+
+      const hit = rows.find(r => Math.abs(shortest(norm(state.pointer) - norm(angOf(mant(r.x)) + state.rot))) < 3.5);
+      $('dl-hint').textContent = hit
+        ? `Zeiger steht auf ${hit.x} ${state.mode==='fuel'?'min':'min'} → ${hit.y} ${state.mode==='fuel'?u('FUEL'):u('DIST')}`
+        : 'Zeiger zwischen den Marken — Scheibe oder Zeiger drehen.';
+    }
+
+    const shortest = d => { let x = ((d + 540) % 360) - 180; return x; };
+
+    function tableRows() {
+      if (state.mode === 'free') {
+        const p = state.a * state.b, q = state.b !== 0 ? state.a / state.b : NaN;
+        return [
+          { x: `a × b = ${fmt(p)}`, y: '' },
+          { x: `a ÷ b = ${fmt(q)}`, y: '' }
+        ].map(r => ({ x: r.x, y: r.y }));
+      }
+      const times = [15, 30, 45, 60, 90, 120, 180];
+      return times.map(t => ({
+        x: t,
+        y: state.mode === 'fuel'
+          ? +(state.a * t / 60).toFixed(1)
+          : +(state.a * t / 60).toFixed(1)
+      }));
+    }
+    const fmt = n => Number.isFinite(n) ? (Math.abs(n) >= 100 ? n.toFixed(0) : n.toFixed(2)) : '–';
+
+    // ---------- Drehen ----------
+    function setRotAnimated(deg) { state.target = deg; }
+
+    function computeAndSpin() {
+      if (state.mode === 'free') {
+        state.a = parseFloat($('dl-a').value) || 1;
+        state.b = parseFloat($('dl-b').value) || 1;
+        setRotAnimated(angOf(mant(state.a)) - angOf(mant(state.b)));
+      } else {
+        const spd = parseFloat($('dl-a').value);
+        if (!isFinite(spd) || spd <= 0) return;
+        state.a = spd;
+        state.b = 60;
+        // 60 (Innenskala) unter a (Außenskala) legen
+        setRotAnimated(angOf(mant(state.a)) - angOf(mant(state.b)));
+      }
+      state.pointerTarget = angOf(mant(60)) + state.target;
+      updateReadout();
+    }
+
+    // ---------- Eingabe ----------
+    function angleFromEvent(e) {
+      const r = cv.getBoundingClientRect();
+      const x = e.clientX - r.left - r.width/2;
+      const y = e.clientY - r.top - r.height/2;
+      return norm(Math.atan2(x, -y) * 180/Math.PI);
+    }
+
+    function isOnPointer(e) {
+      const r = cv.getBoundingClientRect();
+      const x = e.clientX - r.left - r.width/2;
+      const y = e.clientY - r.top - r.height/2;
+      const dist = Math.hypot(x, y);
+      const scale = r.width / S;
+      const handleR = R*0.28*scale;
+      const a = toCanvas(state.pointer);
+      const hx = Math.cos(a)*handleR, hy = Math.sin(a)*handleR;
+      return Math.hypot(x-hx, y-hy) < 26*scale;
+    }
+
+    let lastAngle = 0, lastT = 0, acc = 0;
+
+    function onDown(e) {
+      cv.setPointerCapture?.(e.pointerId);
+      state.dragging = true;
+      $('dial-stage').classList.add('dragging');
+      lastAngle = angleFromEvent(e);
+      lastT = performance.now();
+      state.vel = 0; state.pointerVel = 0; acc = 0;
+      state.dragMode = isOnPointer(e) ? 'pointer' : 'disc';
+      state.target = state.rot; state.pointerTarget = state.pointer;
+    }
+    function onMove(e) {
+      if (!state.dragging) return;
+      const a = angleFromEvent(e);
+      let d = a - lastAngle;
+      if (d > 180) d -= 360; if (d < -180) d += 360;
+      lastAngle = a;
+      const now = performance.now();
+      const dt = Math.max(1, now - lastT); lastT = now;
+      if (state.dragMode === 'pointer') {
+        state.pointer += d;
+        state.pointerVel = d / dt * 16;
+      } else {
+        state.rot += d;
+        state.vel = d / dt * 16;
+        state.target = state.rot;
+      }
+      updateReadout();
+    }
+    function onUp() {
+      if (!state.dragging) return;
+      state.dragging = false;
+      $('dial-stage').classList.remove('dragging');
+      if (state.dragMode === 'disc') state.target = state.rot + state.vel * 8;
+      else state.pointerTarget = state.pointer + state.pointerVel * 8;
+    }
+
+    // ---------- Animation (zeitbasiert, damit sie auch bei gedrosseltem rAF korrekt läuft) ----------
+    let frame = 0, tPrev = 0;
+    function step(now) {
+      const dt = tPrev ? Math.min(64, now - tPrev) : 16;
+      tPrev = now;
+      // exponentielles Annähern, unabhängig von der Framerate (Zeitkonstante ~90 ms)
+      const k = 1 - Math.exp(-dt / 90);
+      if (!state.dragging) {
+        if (state.dragMode !== 'pointer') {
+          const diff = state.target - state.rot;
+          if (Math.abs(diff) > 0.05) state.rot += diff * k;
+          else state.rot = state.target;
         }
-        
-        function calculateWindTriangle() {
-            const tc = parseFloat(document.getElementById('true-course').value);
-            const tas = parseFloat(document.getElementById('true-airspeed').value);
-            const wd = parseFloat(document.getElementById('wind-direction').value);
-            const ws = parseFloat(document.getElementById('wind-speed').value);
-            
-            if (isNaN(tc) || isNaN(tas) || isNaN(wd) || isNaN(ws)) {
-                alert('Bitte alle Felder ausfüllen!');
-                return;
-            }
-            
-            // Convert wind direction to wind vector direction
-            const windVector = (wd + 180) % 360;
-            
-            // Calculate wind angle relative to desired track
-            const windAngle = toRadians(windVector - tc);
-            
-            // Calculate drift angle
-            const driftAngle = Math.asin((ws * Math.sin(windAngle)) / tas);
-            const driftDegrees = toDegrees(driftAngle);
-            
-            // Calculate magnetic heading
-            const magneticHeading = (tc - driftDegrees + 360) % 360;
-            
-            // Calculate ground speed
-            const groundSpeed = Math.sqrt(tas * tas + ws * ws - 2 * tas * ws * Math.cos(windAngle));
-            
-            const result = document.getElementById('wind-result');
-            const speedUnit = currentUnits === 'metric' ? 'km/h' : 'kts';
-            
-            result.innerHTML = `
-                <strong>Ergebnisse:</strong><br>
-                🧭 Magnetischer Steuerkurs: ${magneticHeading.toFixed(1)}°<br>
-                📐 Abtrift: ${driftDegrees.toFixed(1)}°<br>
-                🏃 Grundgeschwindigkeit: ${groundSpeed.toFixed(1)} ${speedUnit}<br>
-                ⏱️ Zeitersparnis/verlust: ${((groundSpeed - tas) / tas * 100).toFixed(1)}%
-            `;
-            result.classList.add('show');
-            
-            drawWindTriangle(tc, tas, wd, ws, magneticHeading, groundSpeed, driftDegrees);
-        }
-        
-        function drawWindTriangle(tc, tas, wd, ws, mh, gs, drift) {
-            const canvas = document.getElementById('wind-canvas');
-            const ctx = canvas.getContext('2d');
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Scale factors
-            const scale = 80 / tas;
-            
-            // Draw coordinate system
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(centerX, 0);
-            ctx.lineTo(centerX, canvas.height);
-            ctx.moveTo(0, centerY);
-            ctx.lineTo(canvas.width, centerY);
-            ctx.stroke();
-            
-            // Draw compass rose
-            ctx.font = '12px Arial';
-            ctx.fillStyle = 'white';
-            ctx.textAlign = 'center';
-            ctx.fillText('N', centerX, 15);
-            ctx.fillText('S', centerX, canvas.height - 5);
-            ctx.textAlign = 'left';
-            ctx.fillText('E', canvas.width - 15, centerY + 4);
-            ctx.textAlign = 'right';
-            ctx.fillText('W', 15, centerY + 4);
-            
-            // Calculate positions
-            const tasX = tas * scale * Math.sin(toRadians(mh));
-            const tasY = -tas * scale * Math.cos(toRadians(mh));
-            const wsX = ws * scale * Math.sin(toRadians(wd));
-            const wsY = -ws * scale * Math.cos(toRadians(wd));
-            const gsX = gs * scale * Math.sin(toRadians(tc));
-            const gsY = -gs * scale * Math.cos(toRadians(tc));
-            
-            // Draw wind vector (red)
-            ctx.strokeStyle = '#ff4444';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.lineTo(centerX + wsX, centerY + wsY);
-            ctx.stroke();
-            
-            // Draw TAS vector (blue)
-            ctx.strokeStyle = '#4444ff';
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.lineTo(centerX + tasX, centerY + tasY);
-            ctx.stroke();
-            
-            // Draw ground track (green)
-            ctx.strokeStyle = '#44ff44';
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.lineTo(centerX + gsX, centerY + gsY);
-            ctx.stroke();
-            
-            // Add labels
-            ctx.font = '10px Arial';
-            ctx.fillStyle = '#ff4444';
-            ctx.fillText('Wind', centerX + wsX/2 + 5, centerY + wsY/2);
-            ctx.fillStyle = '#4444ff';
-            ctx.fillText('TAS', centerX + tasX/2 + 5, centerY + tasY/2);
-            ctx.fillStyle = '#44ff44';
-            ctx.fillText('GS', centerX + gsX/2 + 5, centerY + gsY/2);
-        }
-        
-        function calculateFuel() {
-            const fuelFlow = parseFloat(document.getElementById('fuel-flow').value);
-            const flightTime = parseFloat(document.getElementById('flight-time-hours').value);
-            const reserve = parseFloat(document.getElementById('fuel-reserve').value) || 10;
-            
-            if (isNaN(fuelFlow) || isNaN(flightTime)) {
-                alert('Bitte Treibstoffverbrauch und Flugzeit eingeben!');
-                return;
-            }
-            
-            const fuelRequired = fuelFlow * flightTime;
-            const reserveFuel = fuelRequired * (reserve / 100);
-            const totalFuel = fuelRequired + reserveFuel;
-            
-            const result = document.getElementById('fuel-result');
-            const fuelUnit = currentUnits === 'metric' ? 'Liter' : 'Gallonen';
-            
-            result.innerHTML = `
-                <strong>Treibstoffberechnung:</strong><br>
-                ⛽ Benötigter Treibstoff: ${fuelRequired.toFixed(1)} ${fuelUnit}<br>
-                🛡️ Reserve (${reserve}%): ${reserveFuel.toFixed(1)} ${fuelUnit}<br>
-                📊 Gesamtbedarf: ${totalFuel.toFixed(1)} ${fuelUnit}<br>
-                💰 Sicherheitsmarge: ${(totalFuel * 1.1).toFixed(1)} ${fuelUnit}
-            `;
-            result.classList.add('show');
-        }
-        
-        function calculateTSD() {
-            const calcType = document.getElementById('calc-type').value;
-            const distance = parseFloat(document.getElementById('distance').value);
-            const speed = parseFloat(document.getElementById('speed').value);
-            const time = parseFloat(document.getElementById('time').value);
-            
-            const result = document.getElementById('tsd-result');
-            const speedUnit = currentUnits === 'metric' ? 'km/h' : 'kts';
-            const distanceUnit = currentUnits === 'metric' ? 'km' : 'nm';
-            
-            let resultText = '<strong>Berechnung:</strong><br>';
-            
-            if (calcType === 'time') {
-                if (isNaN(distance) || isNaN(speed) || speed === 0) {
-                    alert('Bitte Entfernung und Geschwindigkeit eingeben!');
-                    return;
-                }
-                const calculatedTime = distance / speed;
-                const hours = Math.floor(calculatedTime);
-                const minutes = Math.round((calculatedTime - hours) * 60);
-                resultText += `⏱️ Flugzeit: ${calculatedTime.toFixed(2)} Stunden (${hours}:${minutes.toString().padStart(2, '0')} h:mm)`;
-            } else if (calcType === 'speed') {
-                if (isNaN(distance) || isNaN(time) || time === 0) {
-                    alert('Bitte Entfernung und Zeit eingeben!');
-                    return;
-                }
-                const calculatedSpeed = distance / time;
-                resultText += `🏃 Geschwindigkeit: ${calculatedSpeed.toFixed(1)} ${speedUnit}`;
-            } else if (calcType === 'distance') {
-                if (isNaN(speed) || isNaN(time)) {
-                    alert('Bitte Geschwindigkeit und Zeit eingeben!');
-                    return;
-                }
-                const calculatedDistance = speed * time;
-                resultText += `📏 Entfernung: ${calculatedDistance.toFixed(1)} ${distanceUnit}`;
-            }
-            
-            result.innerHTML = resultText;
-            result.classList.add('show');
-        }
-        
-        function calculateDensityAltitude() {
-            const pressureAlt = parseFloat(document.getElementById('pressure-altitude').value);
-            const temp = parseFloat(document.getElementById('temperature').value);
-            const ias = parseFloat(document.getElementById('indicated-airspeed').value);
-            
-            if (isNaN(pressureAlt) || isNaN(temp)) {
-                alert('Bitte Druckhöhe und Temperatur eingeben!');
-                return;
-            }
-            
-            // Standard temperature at sea level: 15°C, lapse rate: 2°C per 1000ft or 6.5°C per 1000m
-            const standardTemp = currentUnits === 'metric' ? 
-                15 - (pressureAlt / 1000) * 6.5 : 
-                59 - (pressureAlt / 1000) * 3.5;
-            
-            const tempDifference = temp - standardTemp;
-            
-            // Density altitude calculation
-            const densityAltitude = currentUnits === 'metric' ?
-                pressureAlt + (120 * tempDifference) :
-                pressureAlt + (120 * tempDifference * 1.8);
-            
-            // True airspeed calculation (if IAS provided)
-            let tasResult = '';
-            if (!isNaN(ias)) {
-                const densityRatio = Math.exp(-densityAltitude / (currentUnits === 'metric' ? 8400 : 27500));
-                const tas = ias / Math.sqrt(densityRatio);
-                const speedUnit = currentUnits === 'metric' ? 'km/h' : 'kts';
-                tasResult = `<br>🏃 Wahre Eigengeschwindigkeit: ${tas.toFixed(1)} ${speedUnit}`;
-            }
-            
-            const result = document.getElementById('density-result');
-            const altUnit = currentUnits === 'metric' ? 'm' : 'ft';
-            
-            result.innerHTML = `
-                <strong>Luftdichte Berechnung:</strong><br>
-                🌡️ Standardtemperatur: ${standardTemp.toFixed(1)}°C<br>
-                📏 Dichtehöhe: ${densityAltitude.toFixed(0)} ${altUnit}<br>
-                📊 Höhendifferenz: ${(densityAltitude - pressureAlt).toFixed(0)} ${altUnit}<br>
-                ⚠️ Leistungsverlust: ~${((densityAltitude - pressureAlt) / (currentUnits === 'metric' ? 300 : 1000) * 100).toFixed(1)}%${tasResult}
-            `;
-            result.classList.add('show');
-        }
-        
-        // Initialize canvas
-        window.onload = function() {
-            const canvas = document.getElementById('wind-canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.font = '14px Arial';
-            ctx.fillStyle = 'white';
-            ctx.textAlign = 'center';
-            ctx.fillText('Winddreieck wird hier angezeigt', canvas.width/2, canvas.height/2);
-        };
-    </script>
+        const pdiff = state.pointerTarget - state.pointer;
+        if (Math.abs(pdiff) > 0.05) state.pointer += pdiff * k;
+        else state.pointer = state.pointerTarget;
+      }
+      draw();
+      if ((frame++ % 2) === 0) updateReadout();
+      state.raf = requestAnimationFrame(step);
+    }
+    function loop() { state.raf = requestAnimationFrame(step); }
+    function snap() {
+      state.rot = state.target; state.pointer = state.pointerTarget;
+      draw(); updateReadout();
+    }
+
+    function setMode(m) {
+      state.mode = m;
+      document.querySelectorAll('#dial-modes .chip').forEach(c =>
+        c.classList.toggle('on', c.dataset.mode === m));
+      $('dl-b-wrap').style.display = m === 'free' ? '' : 'none';
+      const lbl = $('dl-a-label');
+      if (m === 'fuel') lbl.innerHTML = `Verbrauch <span class="u">${UNITS[mode].fuel}/h</span>`;
+      else if (m === 'tsd') lbl.innerHTML = `Geschwindigkeit <span class="u speed-u">${UNITS[mode].speed}</span>`;
+      else lbl.innerHTML = 'Faktor A';
+      $('th-inner').textContent = m === 'fuel' ? 'Zeit (min)' : 'Zeit (min)';
+      $('th-outer').textContent = m === 'fuel' ? `Kraftstoff (${UNITS[mode].fuel})` : (m === 'tsd' ? `Strecke (${UNITS[mode].dist})` : 'Ergebnis');
+      computeAndSpin();
+    }
+
+    function init() {
+      cv.addEventListener('pointerdown', onDown);
+      cv.addEventListener('pointermove', onMove);
+      cv.addEventListener('pointerup', onUp);
+      cv.addEventListener('pointercancel', onUp);
+      $('dl-set').onclick = computeAndSpin;
+      $('dl-reset').onclick = () => { setRotAnimated(0); state.pointerTarget = 0; };
+      document.querySelectorAll('#dial-modes .chip').forEach(c =>
+        c.onclick = () => setMode(c.dataset.mode));
+      $('dl-a').addEventListener('input', () => { if (state.mode !== 'free') computeAndSpin(); });
+      $('dl-b').addEventListener('input', () => { if (state.mode === 'free') computeAndSpin(); });
+      setMode('tsd');
+      loop();
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) Dial.snap(); });
+      window.__dial = Dial;   // für automatisierte Prüfungen
+    }
+
+    return { init, setMode, state, readAt, angOf, mant, valAt, norm, setRotAnimated, snap, draw, updateReadout };
+  })();
+
+  // ---------- Wiring ----------
+  $('wt-go').onclick = windTriangle;
+  $('wt-clear').onclick = () => {
+    ['wt-tc','wt-tas','wt-wd','wt-ws'].forEach(id => $(id).value='');
+    $('wt-out').classList.remove('show'); err($('wt-err'),''); drawPlaceholder();
+  };
+  $('fu-go').onclick = fuelCalc;
+  $('tsd-go').onclick = tsdCalc;
+  $('da-go').onclick = atmo;
+
+  // Enter berechnet die jeweilige Karte
+  document.addEventListener('keydown', ev => {
+    if (ev.key !== 'Enter') return;
+    const card = ev.target.closest('.card');
+    if (!card) return;
+    const btn = card.querySelector('.action');
+    if (btn) btn.click();
+  });
+
+  // Canvas-Größe an CSS anpassen (scharfe Darstellung)
+  function fitCanvas(){
+    const c=$('wt-canvas'), r=c.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    c.width = Math.max(600, Math.round(r.width * dpr));
+    c.height = Math.round(300 * dpr);
+    drawPlaceholder();
+  }
+  window.addEventListener('resize', fitCanvas);
+
+  setMode('metric');
+  tsdSync();
+  fitCanvas();
+  Dial.init();
+  // Einheitenwechsel muss die Scheiben-Beschriftung mitziehen
+  const _setMode = setMode;
+  setMode = function(m){ _setMode(m); try { Dial.setMode(Dial.state.mode); } catch(e){} };
+})();
+</script>
 </body>
 </html>
